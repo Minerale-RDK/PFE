@@ -1,0 +1,19 @@
+#We chose an alpine machine
+FROM python:alpine
+
+#Labels
+LABEL maintainers="ECE SimuSec"
+LABEL BuildDate="16/11/21"
+
+#We update it
+RUN apk update
+RUN apk add build-base libffi-dev libc-dev
+
+#We install asyncua
+RUN pip install --no-cache-dir asyncua
+
+#Copy the script
+COPY client-minimal_scada_0.0.1.py client-minimal_scada_0.0.1.py
+
+#Run it
+CMD ["python3", "-u", "client-minimal_scada_0.0.1.py"]
