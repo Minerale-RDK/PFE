@@ -15,5 +15,10 @@ RUN pip install --no-cache-dir asyncua
 #Copy the script
 COPY server-minimal_generateur_0.1.0.py server-minimal_generateur_0.1.0.py
 
+#Pass the power generated as an environment variable
+ENV GENE=500
+
 #Run it
-CMD ["python3", "-u", "server-minimal_generateur_0.1.0.py", "500"]
+##CMD ["python3", "-u", "server-minimal_generateur_0.1.0.py", "500"]
+CMD ["sh","-c","python3 -u server-minimal_generateur_0.1.0.py $GENE"]
+
