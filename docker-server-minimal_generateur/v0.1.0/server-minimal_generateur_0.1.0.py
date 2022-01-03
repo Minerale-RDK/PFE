@@ -37,6 +37,10 @@ async def main():
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/')
 
+    ##DEBUG
+    print("##DEBUG\n GENE produit {} W \n##### ".format(capacity))
+
+
     # setup our own namespace, not really necessary but should as spec
     uri = 'http://examples.freeopcua.github.io'
     idx = await server.register_namespace(uri)
@@ -56,7 +60,6 @@ async def main():
             newFreq = Production(await consommation.read_value(), capacity )
             print("nouvelle frequence = ", newFreq, "avec consommation", await consommation.read_value())
             await frequence.write_value(newFreq)
-
 
 
 if __name__ == '__main__':

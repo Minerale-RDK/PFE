@@ -26,8 +26,9 @@ async def sendConsommationToGenerator(url):
         while True:
             await asyncio.sleep(1)
             frequenceServeur = await client.nodes.root.get_child(["0:Objects", f"{idx}:Freq&Prod", f"{idx}:frequence"])
-            print("Sending %d W of consommation", consommation)
+            print(f"Sending {consommation} W of consommation to {url}")
             await conso.write_value(consommation)
+
 
 async def retrieveConsommationFromConsummer(url):
     global consommation
@@ -38,19 +39,51 @@ async def retrieveConsommationFromConsummer(url):
         while True:
             await asyncio.sleep(1)
             consommation = await consommationConsommateurObject.read_value()
+            consommationConsommateurObject
             
-            
+
+# async def main():
+#     count = int(sys.argv[1])
+#     url_gene = 'opc.tcp://server-gene'+str(count)+':4840/freeopcua/server/'
+#     url_conso = 'opc.tcp://server-conso'+str(count)+':4840/freeopcua/server/consommateur'
+
+#     taskList = []
+
+#     taskList.append(retrieveConsommationFromConsummer(url_conso))
+#     taskList.append(sendConsommationToGenerator(url_gene))
+
+#     # print(url_gene)
+
+#     # taskList = [retrieveConsommationFromConsummer(url_conso), sendConsommationToGenerator(url_gene)]
+
+#     L = await asyncio.gather(*taskList)
+#     #print(L)
+
 
 async def main():
-    url = 'opc.tcp://server1:4840/freeopcua/server/'
-    url2 = 'opc.tcp://server2:4840/freeopcua/server/consommateur'
+    count = int(sys.argv[1])
+    taskList = []
 
-    L = await asyncio.gather(retrieveConsommationFromConsummer(url2), sendConsommationToGenerator(url))
-    print(L)
+    # for i in range(1,count+1):
+    #     url_gene = 'opc.tcp://server-gene'+str(i)+':4840/freeopcua/server/'
+    #     url_conso = 'opc.tcp://server-conso'+str(i)+':4840/freeopcua/server/consommateur'
+    #     taskList.append(retrieveConsommationFromConsummer(url_conso))
+    #     taskList.append(sendConsommationToGenerator(url_gene))
+
+    for i in range(count,count+1):
+        url_gene = 'opc.tcp://server-gene'+str(i)+':4840/freeopcua/server/'
+        url_conso = 'opc.tcp://server-conso'+str(i)+':4840/freeopcua/server/consommateur'
+        taskList.append(retrieveConsommationFromConsummer(url_conso))
+        taskList.append(sendConsommationToGenerator(url_gene))
+
+
+    L = await asyncio.gather(*taskList)
+    #print(L)
 
 
 if __name__ == '__main__':
 
+    print("SERVERS COUNT is ",int(sys.argv[1]))
     asyncio.run(main())
 
 
