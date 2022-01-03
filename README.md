@@ -37,9 +37,8 @@ L'ajout des valeurs de base fréquence et consommation se font en dur dans la li
 
 # A FAIRE (par ordre d'importance)
 
-* Rajouter les fluctuations de consommation côté consommateur (voir google colab Drive)
-* Faire un script permettant le déploiement en une commande de tous les containers
-* Réfléchir à un moyen de pouvoir réaliser une mise à l'échelle (Comment récuppérer les adresses ip, les linker, faire plusieurs réseaux ?)
-* Ajouter les panneaux solaires
-* Linker plusieurs scada pour simuler plusieurs quartiers
 * Mettre en place chiffrement, signatures, mots de passe
+* Simuler partie physique avec un réseau isolé et des capteurs
+* Mécanisme de souscription pour ne pas requêter à chaque fois le serveur mais que le serveur envoie une notif si ça change
+* Linker plusieurs scada pour simuler plusieurs quartiers
+* Mettre boucle/redondance (production / scada)
