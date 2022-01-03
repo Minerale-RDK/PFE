@@ -41,3 +41,5 @@ L'ajout des valeurs de base fréquence et consommation se font en dur dans la li
 * Faire un script permettant le déploiement en une commande de tous les containers
 * Réfléchir à un moyen de pouvoir réaliser une mise à l'échelle (Comment récuppérer les adresses ip, les linker, faire plusieurs réseaux ?)
 * Ajouter les panneaux solaires
+* Linker plusieurs scada pour simuler plusieurs quartiers
+* Mettre en place chiffrement, signatures, mots de passe
