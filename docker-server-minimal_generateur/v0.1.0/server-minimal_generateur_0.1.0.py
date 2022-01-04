@@ -48,8 +48,11 @@ async def main():
     # populating our address space
     # server.nodes, contains links to very common nodes like objects and root
     objectFqandConso = await server.nodes.objects.add_object(idx, 'Freq&Prod')
+    objectRealConso = await server.nodes.objects.add_object(idx, 'Captor')
     frequence = await objectFqandConso.add_variable(idx, 'frequence', ua.Variant(0, ua.VariantType.Double))
     consommation = await objectFqandConso.add_variable(idx, 'consommation', 0)
+    realConsommation = await objectRealConso.add_variable(idx, 'realconso', ua.Variant(0, ua.VariantType.Double))
+     
     # Set MyVariable to be writable by clients
     await consommation.set_writable()
     await server.nodes.objects.add_method(ua.NodeId('ServerMethod', 2), ua.QualifiedName('ServerMethod', 2), func, [ua.VariantType.Int64], [ua.VariantType.Int64])
@@ -57,6 +60,7 @@ async def main():
     async with server:
         while True:
             await asyncio.sleep(1)
+            realConsommation = consommation.read_value()
             newFreq = Production(await consommation.read_value(), capacity )
             print("nouvelle frequence = ", newFreq, "avec consommation", await consommation.read_value())
             await frequence.write_value(newFreq)

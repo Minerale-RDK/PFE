@@ -1,0 +1,22 @@
+#We chose an alpine machine
+FROM python:alpine
+
+#Labels
+LABEL maintainers="ECE SimuSec"
+LABEL BuildDate="16/11/21"
+
+#We update it
+RUN apk update
+RUN apk add build-base libffi-dev libc-dev
+
+#We install asyncua
+RUN pip install --no-cache-dir asyncua
+
+#Copy the script
+COPY client-minimal_capteur.py client-minimal_capteur.py
+
+ENV COUNT=3
+
+#Run it
+##CMD ["python3", "-u", "client-minimal_capteur.py"]
+CMD ["sh","-c","python3 -u client-minimal_capteur.py $COUNT"]
