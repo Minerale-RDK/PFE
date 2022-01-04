@@ -15,7 +15,7 @@ frequenceServeur = 0
 async def printer1():
     print("ceci est un test")
 
-async def sendConsommationToGenerator(url):
+async def RealConsoSendByTheGenerator(url):
     global rConsommation
     global frequenceServeur
     async with Client(url=url) as client:
@@ -29,18 +29,7 @@ async def sendConsommationToGenerator(url):
             print(f"Real Consommation Sending {consommation} W  to {url}")
             await conso.write_value(consommation)
 
-
-async def retrieveConsommationFromConsummer(url):
-    global consommation
-    async with Client(url=url) as client:
-        uri = 'http://examples.freeopcua.github.io'
-        idx = await client.get_namespace_index(uri)
-        consommationConsommateurObject = await client.nodes.root.get_child(["0:Objects", f"{idx}:Conso", f"{idx}:consommation"])
-        while True:
-            await asyncio.sleep(1)
-            consommation = await consommationConsommateurObject.read_value()
-            consommationConsommateurObject
-            
+  
 
 # async def main():
 #     count = int(sys.argv[1])
@@ -73,8 +62,7 @@ async def main():
     for i in range(count,count+1):
         url_gene = 'opc.tcp://server-gene'+str(i)+':4840/freeopcua/server/'
         url_conso = 'opc.tcp://server-conso'+str(i)+':4840/freeopcua/server/consommateur'
-        taskList.append(retrieveConsommationFromConsummer(url_conso))
-        taskList.append(sendConsommationToGenerator(url_gene))
+        taskList.append(RealConsoSendByTheGenerator(url_gene))
 
 
     L = await asyncio.gather(*taskList)
