@@ -64,7 +64,7 @@ async def main():
             newFreq = Production(await consommation.read_value(), capacity )
             print("nouvelle frequence = ", newFreq, "avec consommation", await consommation.read_value())
             await frequence.write_value(newFreq)
-            realConsommation.write_value(await consommation.read_value())  
+            await realConsommation.write_value(await consommation.read_value())  
 
 
 if __name__ == '__main__':
