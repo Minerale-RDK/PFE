@@ -51,7 +51,7 @@ async def main():
     objectRealConso = await server.nodes.objects.add_object(idx, 'Captor')
     frequence = await objectFqandConso.add_variable(idx, 'frequence', ua.Variant(0, ua.VariantType.Double))
     consommation = await objectFqandConso.add_variable(idx, 'consommation', 0)
-    realConsommation = await objectRealConso.add_variable(idx, 'realconso', ua.Variant(0, ua.VariantType.Double))
+    realConsommation = await objectRealConso.add_variable(idx, 'realconso', 0)
      
     # Set MyVariable to be writable by clients
     await consommation.set_writable()
@@ -60,10 +60,11 @@ async def main():
     async with server:
         while True:
             await asyncio.sleep(1)
-            realConsommation = consommation.read_value()
+            #newConso = await consommation.read_value()
             newFreq = Production(await consommation.read_value(), capacity )
             print("nouvelle frequence = ", newFreq, "avec consommation", await consommation.read_value())
             await frequence.write_value(newFreq)
+            realConsommation.write_value(await consommation.read_value())  
 
 
 if __name__ == '__main__':

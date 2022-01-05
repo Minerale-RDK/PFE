@@ -25,39 +25,15 @@ async def RealConsoSendByTheGenerator(url):
         conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Captor", f"{idx}:realconso"])
         while True:
             await asyncio.sleep(1)
-            rConsommation = await client.nodes.root.get_child(["0:Objects", f"{idx}:Captor", f"{idx}:realconso"])
-            print(f"Real Consommation Sending {consommation} W  to {url}")
-            await conso.write_value(consommation)
-
+            print(f"Real Consommation Sending {await conso.read_value()} W  to {url}")
+            #await conso.write_value(rConsommation)
   
 
-# async def main():
-#     count = int(sys.argv[1])
-#     url_gene = 'opc.tcp://server-gene'+str(count)+':4840/freeopcua/server/'
-#     url_conso = 'opc.tcp://server-conso'+str(count)+':4840/freeopcua/server/consommateur'
-
-#     taskList = []
-
-#     taskList.append(retrieveConsommationFromConsummer(url_conso))
-#     taskList.append(sendConsommationToGenerator(url_gene))
-
-#     # print(url_gene)
-
-#     # taskList = [retrieveConsommationFromConsummer(url_conso), sendConsommationToGenerator(url_gene)]
-
-#     L = await asyncio.gather(*taskList)
-#     #print(L)
 
 
 async def main():
     count = int(sys.argv[1])
     taskList = []
-
-    # for i in range(1,count+1):
-    #     url_gene = 'opc.tcp://server-gene'+str(i)+':4840/freeopcua/server/'
-    #     url_conso = 'opc.tcp://server-conso'+str(i)+':4840/freeopcua/server/consommateur'
-    #     taskList.append(retrieveConsommationFromConsummer(url_conso))
-    #     taskList.append(sendConsommationToGenerator(url_gene))
 
     for i in range(count,count+1):
         url_gene = 'opc.tcp://server-gene'+str(i)+':4840/freeopcua/server/'
@@ -66,7 +42,7 @@ async def main():
 
 
     L = await asyncio.gather(*taskList)
-    #print(L)
+
 
 
 if __name__ == '__main__':
