@@ -26,4 +26,4 @@ sleep 6
 ##echo "wake up"
 
 #lance le client Scada
-docker run --rm --name client1 --env COUNT=1 --network=network_0.1 client 
+docker run --name client1 --env COUNT=1 --network=network_0.1 client 

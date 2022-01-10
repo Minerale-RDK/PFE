@@ -43,7 +43,7 @@ async def retrieveConsommationFromConsummer(url):
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
-        server_certificate="certificate-serveur-conso.der"
+        server_certificate="certificates/certificate-serveur-conso.der"
     )
     async with client:              
         uri = 'http://examples.freeopcua.github.io'

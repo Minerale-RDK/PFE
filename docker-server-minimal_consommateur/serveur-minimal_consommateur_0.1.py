@@ -41,7 +41,7 @@ async def main():
 
     # server encryption  
     cert_user_manager = CertificateUserManager()
-    await cert_user_manager.add_user("peer-certificate-client-scada-1.der", name='test_user')
+    await cert_user_manager.add_user("certificates/peer-certificate-client-scada-1.der", name='test_user')
     
     # setup our server
     consommation  = int(sys.argv[1])
