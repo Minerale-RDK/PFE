@@ -7,6 +7,8 @@ from asyncua import Client, Node, ua
 from threading import Thread
 import csv
 import subprocess
+#import docker
+
 
 logging.basicConfig(level=logging.INFO)
 _logger = logging.getLogger('asyncua')
@@ -20,7 +22,6 @@ async def printer1():
 async def RealConsoSendByTheGenerator(url):
     global rConsommation
     global data
-    #global commande = ["docker","cp","client1-captor:/test.csv","test.csv"]
     async with Client(url=url) as client:
         _logger.info('Children of root are: %r', await client.nodes.root.get_children())
         uri = 'http://examples.freeopcua.github.io'
@@ -33,22 +34,23 @@ async def RealConsoSendByTheGenerator(url):
             with open('test.csv', 'a', newline='') as f:
                 wr =csv.writer(f)
                 wr.writerow(data)
-                #print(data[0])
-            #with open("/tmp/output.log", "a") as output:
-            #   await subprocess.call("docker cp client1-captor:/test.csv test.csv", shell=True)    
-            #await subprocess.run_command(commande)
-            
+            commande = ["docker","cp","client1-captor:/test.csv","test.csv"]
+            commande2 = "docker cp client1-captor:/test.csv test.csv"
+            print(commande)
+            subprocess.run(commande2,shell=True)
 
+async def RecuperationFile():
+    commande = ["docker","cp","client1-captor:/test.csv","test.csv"]
+    subprocess.call(commande,shell=True)
 
 async def main():
     count = int(sys.argv[1])
     taskList = []
-
     for i in range(count,count+1):
         url_gene = 'opc.tcp://server-gene'+str(i)+':4840/freeopcua/server/'
-        url_conso = 'opc.tcp://server-conso'+str(i)+':4840/freeopcua/server/consommateur'
+       # taskList.append(RecuperationFile())
         taskList.append(RealConsoSendByTheGenerator(url_gene))
-
+        
 
     L = await asyncio.gather(*taskList)
 
