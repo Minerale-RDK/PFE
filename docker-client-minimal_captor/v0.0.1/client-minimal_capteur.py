@@ -5,6 +5,8 @@ from time import sleep
 import logging
 from asyncua import Client, Node, ua
 from threading import Thread
+import csv
+import subprocess
 
 logging.basicConfig(level=logging.INFO)
 _logger = logging.getLogger('asyncua')
@@ -17,7 +19,8 @@ async def printer1():
 
 async def RealConsoSendByTheGenerator(url):
     global rConsommation
-    global frequenceServeur
+    global data
+    #global commande = ["docker","cp","client1-captor:/test.csv","test.csv"]
     async with Client(url=url) as client:
         _logger.info('Children of root are: %r', await client.nodes.root.get_children())
         uri = 'http://examples.freeopcua.github.io'
@@ -25,10 +28,16 @@ async def RealConsoSendByTheGenerator(url):
         conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Captor", f"{idx}:realconso"])
         while True:
             await asyncio.sleep(1)
-            print(f"Real Consommation Sending {await conso.read_value()} W  to {url}")
-            #await conso.write_value(rConsommation)
-  
-
+            data = [await conso.read_value()]
+            print(f"Real Consommation Sending { data[0] } W  to {url}")
+            with open('test.csv', 'a', newline='') as f:
+                wr =csv.writer(f)
+                wr.writerow(data)
+                #print(data[0])
+            #with open("/tmp/output.log", "a") as output:
+            #   await subprocess.call("docker cp client1-captor:/test.csv test.csv", shell=True)    
+            #await subprocess.run_command(commande)
+            
 
 
 async def main():

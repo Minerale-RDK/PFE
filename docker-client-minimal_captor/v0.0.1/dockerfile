@@ -11,9 +11,9 @@ RUN apk add build-base libffi-dev libc-dev
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua
-
 #Copy the script
 COPY client-minimal_capteur.py client-minimal_capteur.py
+#COPY consumption.c consumption.c
 
 ENV COUNT=3
 
