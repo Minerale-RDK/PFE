@@ -15,8 +15,8 @@ frequenceServeur = 0
 
 # variables certificat chiffrement
 cert_idx = 1
-cert = f"certificates/peer-certificate-client-scada-{cert_idx}.der"
-private_key = f"certificates/peer-private-key-client-scada-{cert_idx}.pem"
+cert = f"peer-certificate-client-scada-{cert_idx}.der"
+private_key = f"peer-private-key-client-scada-{cert_idx}.pem"
 
 async def printer1():
     print("ceci est un test")
