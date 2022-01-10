@@ -10,6 +10,10 @@ import random
 import time
 import math
 
+from asyncua.crypto.permission_rules import SimpleRoleRuleset
+from asyncua.server.users import UserRole
+from asyncua.server.user_managers import CertificateUserManager
+
 starttime=time.time()
 
 @uamethod
@@ -34,11 +38,26 @@ def Consumption(cpt,consumption):
 
 async def main():
     _logger = logging.getLogger('asyncua')
+
+    # server encryption  
+    cert_user_manager = CertificateUserManager()
+    await cert_user_manager.add_user("peer-certificate-client-scada-1.der", name='test_user')
+    
     # setup our server
     consommation  = int(sys.argv[1])
-    server = Server()
+    server = Server(user_manager=cert_user_manager)
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/consommateur')
+
+    # Security policy  
+    server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
+    
+
+    # Load server certificate and private key.
+    # This enables endpoints with signing and encryption.   
+    await server.load_certificate("certificate-serveur-conso.der")
+    await server.load_private_key("private-key-serveur-conso.pem")
+    
 
     ##DEBUG
     print("##DEBUG\n CONSO consomme {} W \n##### ".format(consommation))
