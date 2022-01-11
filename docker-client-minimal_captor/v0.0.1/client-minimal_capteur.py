@@ -34,14 +34,6 @@ async def RealConsoSendByTheGenerator(url):
             with open('test.csv', 'a', newline='') as f:
                 wr =csv.writer(f)
                 wr.writerow(data)
-            commande = ["docker","cp","client1-captor:/test.csv","test.csv"]
-            commande2 = "docker cp client1-captor:/test.csv test.csv"
-            print(commande)
-            subprocess.run(commande2,shell=True)
-
-async def RecuperationFile():
-    commande = ["docker","cp","client1-captor:/test.csv","test.csv"]
-    subprocess.call(commande,shell=True)
 
 async def main():
     count = int(sys.argv[1])
