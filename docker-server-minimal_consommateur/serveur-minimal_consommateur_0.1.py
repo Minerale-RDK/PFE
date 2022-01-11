@@ -55,8 +55,8 @@ async def main():
 
     # Load server certificate and private key.
     # This enables endpoints with signing and encryption.   
-    await server.load_certificate("certificate-serveur-conso.der")
-    await server.load_private_key("private-key-serveur-conso.pem")
+    await server.load_certificate("certificate-consommateur.der")
+    await server.load_private_key("privateKey.pem")
     
 
     ##DEBUG

@@ -42,3 +42,6 @@ L'ajout des valeurs de base fréquence et consommation se font en dur dans la li
 * Mécanisme de souscription pour ne pas requêter à chaque fois le serveur mais que le serveur envoie une notif si ça change
 * Linker plusieurs scada pour simuler plusieurs quartiers
 * Mettre boucle/redondance (production / scada)
+* 
+* Interface graphique
+* 

@@ -38,7 +38,7 @@ async def main():
 
     # server encryption  
     cert_user_manager = CertificateUserManager()
-    await cert_user_manager.add_user("certificates/peer-certificate-client-scada-1.der", name='test_user')
+    await cert_user_manager.add_admin("certificates/peer-certificate-client-scada-1.der", name='test_admin')
 
     # setup our server
     capacity  = int(sys.argv[1])
@@ -51,8 +51,8 @@ async def main():
 
     # Load server certificate and private key.
     # This enables endpoints with signing and encryption.   
-    await server.load_certificate("certificate-serveur-generateur.pem")
-    await server.load_private_key("private-key-serveur-generateur.pem")
+    await server.load_certificate("certificate-generateur.der")
+    await server.load_private_key("privateKey.pem")
 
     ##DEBUG
     print("##DEBUG\n GENE produit {} W \n##### ".format(capacity))

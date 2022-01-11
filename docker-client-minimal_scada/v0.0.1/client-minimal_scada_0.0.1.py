@@ -29,7 +29,7 @@ async def sendConsommationToGenerator(url):
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
-        server_certificate="certificates/certificate-serveur-generateur.der"
+        server_certificate="certificates/certificate-generateur.der"
     )
     async with client :
         _logger.info('Children of root are: %r', await client.nodes.root.get_children())
@@ -50,7 +50,7 @@ async def retrieveConsommationFromConsummer(url):
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
-        server_certificate="certificates/certificate-serveur-conso.der"
+        server_certificate="certificates/certificate-consommateur.der"
     )
     async with client:              
         uri = 'http://examples.freeopcua.github.io'
