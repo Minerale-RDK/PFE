@@ -31,7 +31,7 @@ async def RealConsoSendByTheGenerator(url):
             await asyncio.sleep(1)
             data = [await conso.read_value()]
             print(f"Real Consommation Sending { data[0] } W  to {url}")
-            with open('test.csv', 'a', newline='') as f:
+            with open('./data/test.csv', 'a', newline='') as f:
                 wr =csv.writer(f)
                 wr.writerow(data)
 

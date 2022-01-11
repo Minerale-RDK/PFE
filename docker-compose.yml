@@ -37,7 +37,17 @@ services:
       networks: 
         - networks1
       restart: always
+      volumes: 
+        - real_conso:/data
 
 networks:
   networks1:
     #driver: custom-driver-1   
+
+volumes:
+  real_conso:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "C:/Users/gesli/OneDrive/Documents/ing5/PFE/data"
