@@ -27,6 +27,7 @@ services:
         - COUNT=1
       networks: 
         - networks1
+      restart: always
 
   client1-captor:
       build: docker-client-minimal_captor/v0.0.1/.
@@ -35,6 +36,7 @@ services:
         - COUNT=1
       networks: 
         - networks1
+      restart: always
 
 networks:
   networks1:
