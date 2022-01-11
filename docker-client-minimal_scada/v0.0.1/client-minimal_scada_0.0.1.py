@@ -24,7 +24,14 @@ async def printer1():
 async def sendConsommationToGenerator(url):
     global consommation
     global frequenceServeur
-    async with Client(url=url) as client :
+    client = Client(url=url)
+    await client.set_security(
+        SecurityPolicyBasic256Sha256,
+        certificate=cert,
+        private_key=private_key,
+        server_certificate="certificates/certificate-serveur-generateur.der"
+    )
+    async with client :
         _logger.info('Children of root are: %r', await client.nodes.root.get_children())
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)

@@ -13,8 +13,9 @@ RUN apk add build-base libffi-dev libc-dev
 RUN pip install --no-cache-dir asyncua
 
 #Copy the script
-COPY server-minimal_generateur_0.1.0.py server-minimal_generateur_0.1.0.py
+#COPY server-minimal_generateur_0.1.0.py server-minimal_generateur_0.1.0.py
 COPY certificates/ /certificates/
+COPY . /
 
 #Pass the power generated as an environment variable
 ENV GENE=500

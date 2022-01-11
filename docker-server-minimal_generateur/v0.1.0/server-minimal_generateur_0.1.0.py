@@ -10,6 +10,10 @@ import random
 import time
 import math
 
+from asyncua.crypto.permission_rules import SimpleRoleRuleset
+from asyncua.server.users import UserRole
+from asyncua.server.user_managers import CertificateUserManager
+
 starttime=time.time()
 
 def Production(consommation, capacity):
@@ -31,11 +35,24 @@ def func(parent, value):
 
 async def main():
     _logger = logging.getLogger('asyncua')
+
+    # server encryption  
+    cert_user_manager = CertificateUserManager()
+    await cert_user_manager.add_user("certificates/peer-certificate-client-scada-1.der", name='test_user')
+
     # setup our server
     capacity  = int(sys.argv[1])
-    server = Server()
+    server = Server(user_manager=cert_user_manager)
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/')
+
+    # Security policy  
+    server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
+
+    # Load server certificate and private key.
+    # This enables endpoints with signing and encryption.   
+    await server.load_certificate("certificate-serveur-generateur.pem")
+    await server.load_private_key("private-key-serveur-generateur.pem")
 
     ##DEBUG
     print("##DEBUG\n GENE produit {} W \n##### ".format(capacity))

@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir asyncua
 #Copy the script
 #COPY serveur-minimal_consommateur_0.1.py serveur-minimal_consommateur_0.1.py
 COPY certificates/ /certificates/
-COPY * /
+COPY . /
 
 #Pass the consumption as an environment variable
 ENV CONSO=300
