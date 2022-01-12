@@ -2,52 +2,56 @@ version: '3'
 
 services:
   server-conso1:
-      build: docker-server-minimal_consommateur/.
-      image: server-conso1
-      environment:  
-        - CONSO=300
-        - COUNT=1
-      networks: 
-        - networks1
-      
+    build: docker-server-minimal_consommateur/.
+    image: server-conso1
+    environment:
+     - CONSO= 200
+     - COUNT= 1
+    networks:
+     - network1
+    restart: always
+
+
   server-gene1:
-      build: docker-server-minimal_generateur/v0.1.0/.
-      image: server-gene1
-      environment: 
-        - GENE=500
-        - COUNT=1
-      networks: 
-        - networks1
-      
+    build: docker-server-minimal_generateur/v0.1.0/.
+    image: server-gene1
+    environment:
+     - GENE= 200
+     - COUNT= 1
+    networks:
+     - network1
+    restart: always
 
-  client1-scada:
-      build: docker-client-minimal_scada/v0.0.1/.
-      image: client1-scada
-      environment: 
-        - COUNT=1
-      networks: 
-        - networks1
-      restart: always
 
-  client1-captor:
-      build: docker-client-minimal_captor/v0.0.1/.
-      image: client1-captor
-      environment: 
-        - COUNT=1
-      networks: 
-        - networks1
-      restart: always
-      volumes: 
-        - real_conso:/data
+  client_captor1:
+    build: docker-client-minimal_captor/v0.0.1/.
+    image: client-captor1
+    environment:
+     - COUNT= 1
+    networks:
+     - network1
+    restart: always
+    volumes:
+     - volume1
 
-networks:
-  networks1:
-    #driver: custom-driver-1   
+
+  client_scada1:
+    build: docker-client-minimal_scada/v0.0.1/.
+    image: client-scada1
+    environment:
+     - COUNT= 1
+    networks:
+     - network1
+    restart: always
+
 
 volumes:
-  real_conso:
+  volume1:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: "C:/Users/gesli/OneDrive/Documents/ing5/PFE/data"
+      device: C:/Users/gesli/OneDrive/Documents/ing5/PFE/data 
+
+networks:
+   network1:
