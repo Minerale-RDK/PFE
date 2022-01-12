@@ -21,9 +21,7 @@ docker run -d --env GENE=500 --name server-gene$count --network=network_0.1 serv
 docker run -d --env CONSO=300 --name server-conso$count --network=network_0.1 serveur-consommateur
 
 #Il est nécessaire de faire cet opération pour laisser les premières connexions s'établir
-##echo "sleep"
 sleep 6
-##echo "wake up"
 
 #lance le client Scada
 docker run --name client1 --env COUNT=1 --network=network_0.1 client 

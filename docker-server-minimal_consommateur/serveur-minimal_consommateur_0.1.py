@@ -76,21 +76,16 @@ async def main():
     await server.nodes.objects.add_method(ua.NodeId('ServerMethod', 2), ua.QualifiedName('ServerMethod', 2), func, [ua.VariantType.Int64], [ua.VariantType.Int64])
     print('Starting server!')
     cpt = 0
-    #j = 0
     async with server:
         while True:
             await asyncio.sleep(1)
             consommationHoraire = Consumption(cpt,consommation)
-            #consommation+=1
-            #print("consommation cote consommateur : {} à {}h ".format(consommationHoraire, cpt))
             await consommation1.write_value(consommationHoraire)
             
             cpt+=1
             if (cpt == 24):
-                #j += 1
                 print ('Nouveau Jour')
                 cpt = 0
-
 
 
 if __name__ == '__main__':

@@ -13,11 +13,9 @@ RUN apk add build-base libffi-dev libc-dev
 RUN pip install --no-cache-dir asyncua
 
 #Copy the script
-#COPY client-minimal_scada_0.0.1.py client-minimal_scada_0.0.1.py
 COPY . /
 
 ENV COUNT=3
 
 #Run it
-##CMD ["python3", "-u", "client-minimal_scada_0.0.1.py"]
 CMD ["sh","-c","python3 -u client-minimal_scada_0.0.1.py $COUNT"]

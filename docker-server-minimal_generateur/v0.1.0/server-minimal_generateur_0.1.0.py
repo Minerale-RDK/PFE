@@ -24,7 +24,6 @@ def Production(consommation, capacity):
     if(production > capacity):
         production = capacity
 
-    # f1 - f0 = (Production-Consommation) / Capacité Totale
     f1 = (production - consommation)/capacity + 50
     
     return f1

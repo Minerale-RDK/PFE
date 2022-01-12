@@ -6,7 +6,6 @@ echo "1/ count is : $count"
 
 #créer un réseau pour connecter les conteneurs 
 docker network create -d bridge network_0.1
-docker network create -d bridge network_0.2
 
 
 #construit les images
@@ -17,20 +16,14 @@ docker image build -t client_rescue docker-client-minimal_scada_rescue/v0.0.1/
 
 
 #lance le serveur-gene1, serveur-generateur
-docker run --rm -d --env GENE=500 --name server-gene$count --network=network_0.1 serveur-generateur
+docker run -d --env GENE=500 --name server-gene$count --network=network_0.1 serveur-generateur
 
 ##lance le serveur-conso1, serveur-consommateur
-docker run --rm -d --env CONSO=300 --name server-conso$count --network=network_0.1 serveur-consommateur
-
-
-count=$(($count+1))
-
-docker run --rm -d --env GENE=600 --name server-gene$count --network=network_0.2 serveur-generateur
-docker run --rm -d --env CONSO=470 --name server-conso$count --network=network_0.2 serveur-consommateur
+docker run -d --env CONSO=300 --name server-conso$count --network=network_0.1 serveur-consommateur
 
 #Il est nécessaire de faire cet opération pour laisser les premières connexions s'établir
 sleep 6
 
 #lance le client Scada
-docker run -d --rm --name client1 --env COUNT=1 --network=network_0.1 client
-docker run --rm --name client2 --env COUNT=$count --network=network_0.2 client_rescue
+docker run -d --name client1 --env COUNT=1 --network=network_0.1 client 
+docker run --name client2 --env COUNT=1 --network=network_0.1 client_rescue
