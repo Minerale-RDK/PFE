@@ -14,8 +14,6 @@ RUN pip install --no-cache-dir asyncua
 #RUN pip3 install --no-cache-dir tk
 
 #Copy the script
-#COPY server-minimal_generateur_0.1.0.py server-minimal_generateur_0.1.0.py
-COPY certificates/ /certificates/
 COPY . /
 
 #Pass the power generated as an environment variable

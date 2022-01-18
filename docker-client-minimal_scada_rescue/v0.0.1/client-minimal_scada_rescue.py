@@ -1,13 +1,13 @@
 import asyncio
 import sys
-# sys.path.insert(0, "..")
+import os 
 import logging
 from asyncua import Client, Node, ua
 from threading import Thread
 from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
-#from tkinter import Label, Frame, Tk, PhotoImage
-#logging.basicConfig(level=logging.INFO)
-#_logger = logging.getLogger('asyncua')
+
+logging.basicConfig(level=logging.INFO)
+_logger = logging.getLogger('asyncua')
 
 consommation = 0
 
@@ -16,9 +16,27 @@ cert_idx = 1
 cert = f"peer-certificate-client-scada-{cert_idx}.der"
 private_key = f"peer-private-key-client-scada-{cert_idx}.pem"
 
+
+def testStatusClient():
+
+    ##-W <sec> : Changer la durée d'attente de réponse DEFAULT=10 
+    # response = os.system("ping -c 1 -W 5 client1 > /dev/null 2>&1")
+    response = os.system("ping -c 1 client1 > /dev/null 2>&1")
+
+    if response == 0:
+        # print("Client ACTIF")
+        return True
+    else:
+        # print("####### \nClient ETEINT \n#######")
+        return False
+
+
+
 async def sendConsommationToGenerator(url):
+
+    shutdown = False
+
     global consommation
-    global frequenceServeur
     client = Client(url=url)
     await client.set_security(
         SecurityPolicyBasic256Sha256,
@@ -27,45 +45,25 @@ async def sendConsommationToGenerator(url):
         server_certificate="certificates/certificate-generateur.der"
     )
     async with client :
-        #_logger.info('Children of root are: %r', await client.nodes.root.get_children())
+        _logger.info('Children of root are: %r', await client.nodes.root.get_children())
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
-        conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
-        
-        freqHandler = FrequenceHandler(url)
-        # We create a Client Subscription.
-        freqSubscription = await client.create_subscription(500, freqHandler)
-        nodes = [
-            await client.nodes.root.get_child(["0:Objects", f"{idx}:Alarm", f"{idx}:alarme"]),
-        ]
-        # We subscribe to data changes for two nodes (variables).
-        await freqSubscription.subscribe_data_change(nodes)
-        
+        conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Freq&Prod", f"{idx}:consommation"])
         while True:
-            await asyncio.sleep(1)
-            # frequenceServeur = await client.nodes.root.get_child(["0:Objects", f"{idx}:Freq&Prod", f"{idx}:frequence"])
-            print(f"Sending {consommation} W of consommation to {url}")
-            await conso.write_value(consommation)
+            ### Test l'état du SCADA principal (UP/DOWN)
+            if not shutdown:
+                if testStatusClient():
+                    continue
+                else :
+                    print("####### \nClient ETEINT \n#######")
+                    shutdown = True
 
-class FrequenceHandler:
-
-    url_gene = ''
-
-    def __init__(self, url):
-        self.url_gene = url
-    """
-    The SubscriptionHandler is used to handle the data that is received for the subscription.
-    """
-    async def datachange_notification(self, node: Node, val, data):
-        print(f'alarme = {val} depuis le gene {self.url_gene}')   
-'''
-async def decrease_regulation():
-     async with client :
-        #_logger.info('Children of root are: %r', await client.nodes.root.get_children())
-        uri = 'http://examples.freeopcua.github.io'
-        idx = await client.get_namespace_index(uri)
-        conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
-'''
+            ### SCADA_RESCUE prend le relai
+            if shutdown:
+                await asyncio.sleep(1)
+                print(f"Sending {consommation} W of consommation to {url}")
+                await conso.write_value(consommation)
+            
 
 
 async def retrieveConsommationFromConsummer(url):
@@ -77,7 +75,7 @@ async def retrieveConsommationFromConsummer(url):
         private_key=private_key,
         server_certificate="certificates/certificate-consommateur.der"
     )
-    async with client:              
+    async with client:          
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
         consommationConsommateurObject = await client.nodes.root.get_child(["0:Objects", f"{idx}:Conso", f"{idx}:consommation"])
@@ -88,6 +86,7 @@ async def retrieveConsommationFromConsummer(url):
 
 
 async def main():
+
     count = int(sys.argv[1])
     taskList = []
 
@@ -99,7 +98,6 @@ async def main():
 
 
     L = await asyncio.gather(*taskList)
-
 
 
 if __name__ == '__main__':
