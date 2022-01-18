@@ -14,6 +14,7 @@ RUN pip install --no-cache-dir asyncua
 
 #Copy the script
 #COPY client-minimal_scada_0.0.1.py client-minimal_scada_0.0.1.py
+#COPY script.sh /scripts
 COPY . /
 
 ENV COUNT=3

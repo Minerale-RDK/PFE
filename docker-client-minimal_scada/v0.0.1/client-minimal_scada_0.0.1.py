@@ -6,9 +6,9 @@ import logging
 from asyncua import Client, Node, ua
 from threading import Thread
 from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
-
-logging.basicConfig(level=logging.INFO)
-_logger = logging.getLogger('asyncua')
+#from tkinter import Label, Frame, Tk, PhotoImage
+#logging.basicConfig(level=logging.INFO)
+#_logger = logging.getLogger('asyncua')
 
 consommation = 0
 frequenceServeur = 0
@@ -18,8 +18,6 @@ cert_idx = 1
 cert = f"peer-certificate-client-scada-{cert_idx}.der"
 private_key = f"peer-private-key-client-scada-{cert_idx}.pem"
 
-async def printer1():
-    print("ceci est un test")
 
 async def sendConsommationToGenerator(url):
     global consommation
@@ -32,15 +30,45 @@ async def sendConsommationToGenerator(url):
         server_certificate="certificates/certificate-generateur.der"
     )
     async with client :
-        _logger.info('Children of root are: %r', await client.nodes.root.get_children())
+        #_logger.info('Children of root are: %r', await client.nodes.root.get_children())
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
-        conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Freq&Prod", f"{idx}:consommation"])
+        conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
+        
+        freqHandler = FrequenceHandler(url)
+        # We create a Client Subscription.
+        freqSubscription = await client.create_subscription(500, freqHandler)
+        nodes = [
+            await client.nodes.root.get_child(["0:Objects", f"{idx}:Alarm", f"{idx}:alarme"]),
+        ]
+        # We subscribe to data changes for two nodes (variables).
+        await freqSubscription.subscribe_data_change(nodes)
+        
         while True:
             await asyncio.sleep(1)
             frequenceServeur = await client.nodes.root.get_child(["0:Objects", f"{idx}:Freq&Prod", f"{idx}:frequence"])
             print(f"Sending {consommation} W of consommation to {url}")
             await conso.write_value(consommation)
+
+class FrequenceHandler:
+
+    url_gene = ''
+
+    def __init__(self, url):
+        self.url_gene = url
+    """
+    The SubscriptionHandler is used to handle the data that is received for the subscription.
+    """
+    async def datachange_notification(self, node: Node, val, data):
+        print(f'alarme = {val} depuis le gene {self.url_gene}')   
+'''
+async def decrease_regulation():
+     async with client :
+        #_logger.info('Children of root are: %r', await client.nodes.root.get_children())
+        uri = 'http://examples.freeopcua.github.io'
+        idx = await client.get_namespace_index(uri)
+        conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
+'''
 
 
 async def retrieveConsommationFromConsummer(url):

@@ -32,7 +32,7 @@ def Consumption(cpt,consumption):
         consommation = random.uniform(0.75*consumption,1.04*consumption)
     # Soir
     elif (cpt in range (19,24)):
-        consommation = random.uniform(1.02*consumption,1.34*consumption)
+        consommation = 2#random.uniform(1.02*consumption,1.34*consumption)
     return int(consommation)
 
 
@@ -41,10 +41,10 @@ async def main():
 
     # server encryption  
     cert_user_manager = CertificateUserManager()
-    await cert_user_manager.add_user("certificates/peer-certificate-client-scada-1.der", name='test_user')
+    await cert_user_manager.add_admin("certificates/peer-certificate-client-scada-1.der", name='test_admin')
     
     # setup our server
-    consommation  = int(sys.argv[1])
+    consommation  = 500#int(sys.argv[1])
     server = Server(user_manager=cert_user_manager)
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/consommateur')

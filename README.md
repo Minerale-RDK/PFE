@@ -37,11 +37,7 @@ L'ajout des valeurs de base fréquence et consommation se font en dur dans la li
 
 # A FAIRE (par ordre d'importance)
 
-* Mettre en place chiffrement, signatures, mots de passe
-* Simuler partie physique avec un réseau isolé et des capteurs
-* Mécanisme de souscription pour ne pas requêter à chaque fois le serveur mais que le serveur envoie une notif si ça change
-* Linker plusieurs scada pour simuler plusieurs quartiers
-* Mettre boucle/redondance (production / scada)
-* 
-* Interface graphique
+* Interface graphique de création de réseau
+* Régulation
+* Scada intelligent
 * 
