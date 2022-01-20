@@ -5,39 +5,43 @@ services:
     build: docker-server-minimal_consommateur/.
     image: server-conso1
     environment:
-     - CONSO= 1
-     - COUNT= 1
+     - CONSO= 150
     restart: always
 
 
   server-gene1:
-    build: docker-server-minimal_generateur/v0.1.0/.
+    build: docker-server-minimal_generateur/.
     image: server-gene1
     environment:
-     - GENE= 1
-     - COUNT= 1
+     - GENE= 500
     restart: always
 
 
   client_captor1:
-    build: docker-client-minimal_captor/v0.0.1/.
+    build: docker-client-minimal_captor/.
     image: client-captor1
     environment:
      - COUNT= 1
     restart: always
     volumes:
-     - volume1
+     - volume1:/data
 
 
   client_scada1:
-    build: docker-client-minimal_scada/v0.0.1/.
+    build: docker-client-minimal_scada/.
     image: client-scada1
     environment:
-     - COUNT= 1
      - NbConso= 1
      - NbGene= 1
     restart: always
 
+  client_scada_rescue:
+    build: docker-client-minimal_scada_rescue/.
+    image: client-scada-rescue
+    environment:
+     - NbConso= 1
+     - NbGene= 1
+    restart: always
 
 volumes:
   volume1:
@@ -45,5 +49,5 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: "C:/Users/gesli/OneDrive/Documents/ing5/pfe/data " 
+      device: "/home/kali/PFE/data" 
 

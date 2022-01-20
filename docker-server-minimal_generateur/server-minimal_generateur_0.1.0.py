@@ -21,7 +21,7 @@ async def Production(consommation, capacity, coef_vitesse, production):
     productionAct = await production.read_value()
 
     if productionAct < consommation:
-        productionAct += capacity*coef_vitesse          
+        productionAct += capacity*coef_vitesse         
         if productionAct > consommation:
             productionAct = consommation
         await production.write_value(int(productionAct))
@@ -49,7 +49,8 @@ async def main():
 
     # server encryption  
     cert_user_manager = CertificateUserManager()
-    await cert_user_manager.add_admin("certificates/peer-certificate-client-scada-1.der", name='test_admin')
+    await cert_user_manager.add_admin("certificates/peer-certificate-client-scada-1.der", name='admin_scada')
+    await cert_user_manager.add_admin("certificates/peer-certificate-client-capteur-1.der", name='admin_capteur')
 
     # setup our server
     capacity  = int(sys.argv[1]) #A changer avec type centrale qui va nous donner capacity et coeff vitesse

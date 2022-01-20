@@ -7,6 +7,7 @@ from asyncua import Client, Node, ua
 from threading import Thread
 import csv
 import subprocess
+from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
 #import docker
 
 
@@ -16,13 +17,23 @@ _logger = logging.getLogger('asyncua')
 consommation = 0
 frequenceServeur = 0
 
-async def printer1():
-    print("ceci est un test")
+# variables certificat chiffrement
+cert_idx = 1
+cert = f"peer-certificate-client-capteur-{cert_idx}.der"
+private_key = f"peer-private-key-client-capteur-{cert_idx}.pem"
 
 async def RealConsoSendByTheGenerator(url):
     global rConsommation
     global data
-    async with Client(url=url) as client:
+    #print("in RealCOnso : ", url)
+    client = Client(url=url)
+    await client.set_security(
+        SecurityPolicyBasic256Sha256,
+        certificate=cert,
+        private_key=private_key,
+        server_certificate="certificates/certificate-generateur.der"
+    )
+    async with client:
         _logger.info('Children of root are: %r', await client.nodes.root.get_children())
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
@@ -37,11 +48,13 @@ async def RealConsoSendByTheGenerator(url):
 
 async def main():
     count = int(sys.argv[1])
+    print("count : ", count)
     taskList = []
-    for i in range(count,count+1):
-        url_gene = 'opc.tcp://server-gene'+str(i)+':4840/freeopcua/server/'
-       # taskList.append(RecuperationFile())
-        taskList.append(RealConsoSendByTheGenerator(url_gene))
+
+    url_gene = 'opc.tcp://server-gene'+str(count)+':4840/freeopcua/server/'
+    print("in main : ", url_gene)
+    # taskList.append(RecuperationFile())
+    taskList.append(RealConsoSendByTheGenerator(url_gene))
         
 
     L = await asyncio.gather(*taskList)

@@ -44,7 +44,7 @@ async def main():
     await cert_user_manager.add_admin("certificates/peer-certificate-client-scada-1.der", name='test_admin')
     
     # setup our server
-    consommation  = 500#int(sys.argv[1])
+    consommation  = int(sys.argv[1])
     server = Server(user_manager=cert_user_manager)
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/consommateur')
@@ -81,11 +81,11 @@ async def main():
         while True:
             await asyncio.sleep(1)
             consommationHoraire = Consumption(cpt,consommation)
-            print(f'consommationHorraire = {consommationHoraire}')
+            print(f'consommationHoraire = {consommationHoraire}')
             #consommation+=1
             #print("consommation cote consommateur : {} à {}h ".format(consommationHoraire, cpt))
             await consommation1.write_value(consommationHoraire)
-            print(consommation)
+            #print(consommation)
             cpt+=1
             if (cpt == 24):
                 #j += 1

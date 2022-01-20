@@ -1,1 +1,0 @@
-docker ps -q | % { docker kill $_ }; docker container prune; docker rmi server-minimal_generateur_0.0.1

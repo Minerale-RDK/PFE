@@ -11,12 +11,13 @@ RUN apk add build-base libffi-dev libc-dev
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua
-#Copy the script
-COPY client-minimal_capteur.py client-minimal_capteur.py
-#COPY consumption.c consumption.c
 
-ENV COUNT=3
+#Copy the script
+COPY . /
+
+#ENV COUNT
+ENV NbConso=0
+ENV NbGene=0
 
 #Run it
-##CMD ["python3", "-u", "client-minimal_capteur.py"]
-CMD ["sh","-c","python3 -u client-minimal_capteur.py $COUNT"]
+CMD ["sh","-c","python3 -u client-minimal_scada_rescue.py $NbConso $NbGene"]

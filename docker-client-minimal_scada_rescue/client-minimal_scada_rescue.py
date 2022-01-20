@@ -63,11 +63,30 @@ cert_idx = 1
 cert = f"peer-certificate-client-scada-{cert_idx}.der"
 private_key = f"peer-private-key-client-scada-{cert_idx}.pem"
 
+
+def testStatusClient():
+
+    ##-W <sec> : Changer la durée d'attente de réponse DEFAULT=10 
+    # response = os.system("ping -c 1 -W 5 client1 > /dev/null 2>&1")
+    response = os.system("ping -c 1 client1 > /dev/null 2>&1")
+
+    if response == 0:
+        # print("Client ACTIF")
+        return True
+    else:
+        # print("####### \nClient ETEINT \n#######")
+        return False
+
+
+
 async def sendConsommationToGenerator(url):
+
+    shutdown = False
+
     global consommationTotale
     global listCoeff, listCapa
 
-    index = url.split('opc.tcp://server-gene')[1][:1]
+    index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
     #print(f'index = {index}')
     client = Client(url=url)
     await client.set_security(
@@ -77,11 +96,9 @@ async def sendConsommationToGenerator(url):
         server_certificate="certificates/certificate-generateur.der"
     )
     async with client :
-        #print("TEst generateur connection")   
+        _logger.info('Children of root are: %r', await client.nodes.root.get_children())
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
-        #conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
-       
         alarmeHandler = AlarmeHandler(url)
         # We create a Client Subscription.
         alarmeSubscription = await client.create_subscription(500, alarmeHandler)
@@ -89,7 +106,7 @@ async def sendConsommationToGenerator(url):
 
         capacity = await client.nodes.root.get_child(["0:Objects", f"{idx}:Capa&Coeff", f"{idx}:capa"])
         #listCapa[index] = await capacity.read_value()
-        listDispo[int(index)] = await capacity.read_value()
+        listDispo[index] = await capacity.read_value()
         #listCapa.append(await capacity.read_value())
         #listDispo.append(await capacity.read_value())
 
@@ -98,19 +115,26 @@ async def sendConsommationToGenerator(url):
         # We subscribe to data changes for 1 node, l'alarme du générateur.
         await alarmeSubscription.subscribe_data_change(node)
         conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
-        
         while True:
-            consoTotale = 0
-            await asyncio.sleep(1)
+            ### Test l'état du SCADA principal (UP/DOWN)
+            if not shutdown:
+                if testStatusClient():
+                    continue
+                else :
+                    print("####### \nClient ETEINT \n#######")
+                    shutdown = True
+
+            ### SCADA_RESCUE prend le relai
+            if shutdown:
+                consoTotale = 0
+                await asyncio.sleep(1)
+                
+                for i in range(len(listConso)):
+                    print(f'matriceFin = {matriceFin[i][int(index)]}')
+                    consoTotale += matriceFin[i][int(index)]
+                print(f"Sending {consoTotale} W of consommation to {url}")
+                await conso.write_value(consoTotale)
             
-            for i in range(len(listConso)):
-                print(f'matriceFin = {matriceFin[i][int(index)]}')
-                consoTotale += matriceFin[i][int(index)]
-            print(f"Sending {consoTotale} W of consommation to {url}")
-            await conso.write_value(consoTotale)
-        
-        #return client
-        
 
 class AlarmeHandler:
     url_gene = ''
@@ -125,7 +149,7 @@ async def retrieveConsommationFromConsummer(url):
     global listConso
     client = Client(url=url)
 
-    index = url.split('opc.tcp://server-conso')[1][:1]
+    index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
 
     await client.set_security(
         SecurityPolicyBasic256Sha256,
@@ -141,10 +165,9 @@ async def retrieveConsommationFromConsummer(url):
         #print(client.__str__())
         while True:
             await asyncio.sleep(1.05)
-            listConso[int(index)] = await consommationConsommateurObject.read_value()
+            listConso[index] = await consommationConsommateurObject.read_value()
             print(f'consommation = {listConso[int(index)]}')
     
-
 
 
 async def main():
@@ -158,11 +181,11 @@ async def main():
 
     # Creation des Generateurs et consommateurs
     for i in range(NbConso):
-        url_conso = 'opc.tcp://server-conso'+str(i)+':4840/freeopcua/server/consommateur'            
+        url_conso = 'opc.tcp://server-conso'+str(i+1)+':4840/freeopcua/server/consommateur'            
         taskList.append(retrieveConsommationFromConsummer(url_conso))
     taskList.append(getDispatch(listDispo, listConso))
     for i in range(NbGene):
-        url_gene = 'opc.tcp://server-gene'+str(i)+':4840/freeopcua/server/'
+        url_gene = 'opc.tcp://server-gene'+str(i+1)+':4840/freeopcua/server/'
         taskList.append(sendConsommationToGenerator(url_gene))
     
     L = await asyncio.gather(*taskList)
