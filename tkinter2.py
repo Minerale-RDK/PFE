@@ -199,6 +199,8 @@ def consum():
         build = "docker-client-minimal_scada/v0.0.1/."
         image = "client-scada"+str(i)
         env = ["COUNT= "+str(i)]
+        env.append("NbConso= "+str(len(listC)))
+        env.append("NbGene= "+str(len(listP)))
         vol = "0"
         captor= service(name, build,image,env,vol)
         tabService.append(captor)  

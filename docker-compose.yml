@@ -34,6 +34,8 @@ services:
     image: client-scada1
     environment:
      - COUNT= 1
+     - NbConso= 1
+     - NbGene= 1
     restart: always
 
 
