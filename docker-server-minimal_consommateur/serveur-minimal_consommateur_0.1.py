@@ -81,6 +81,7 @@ async def main():
         while True:
             await asyncio.sleep(1)
             consommationHoraire = Consumption(cpt,consommation)
+            print(f'consommationHorraire = {consommationHoraire}')
             #consommation+=1
             #print("consommation cote consommateur : {} à {}h ".format(consommationHoraire, cpt))
             await consommation1.write_value(consommationHoraire)

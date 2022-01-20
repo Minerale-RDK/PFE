@@ -21,7 +21,7 @@ async def Production(consommation, capacity, coef_vitesse, production):
     productionAct = await production.read_value()
 
     if productionAct < consommation:
-        productionAct += capacity*coef_vitesse           
+        productionAct += capacity*coef_vitesse          
         if productionAct > consommation:
             productionAct = consommation
         await production.write_value(int(productionAct))
@@ -73,16 +73,21 @@ async def main():
     uri = 'http://examples.freeopcua.github.io'
     idx = await server.register_namespace(uri)
 
-    # populating our address space
-    # server.nodes, contains links to very common nodes like objects and root
-    #3 objets : Freq&Prod = fréquence et production, Alarme = alarme, Conso = La conso demandée envoyée par le Scada
+
+    objectCapaCoeff = await server.nodes.objects.add_object(idx, 'Capa&Coeff')
+    capa = await objectCapaCoeff.add_variable(idx, 'capa', capacity)
+    coeff = await objectCapaCoeff.add_variable(idx, 'coeff', 0.05)#Coeff en dur ici
+
     objectFqandProd = await server.nodes.objects.add_object(idx, 'Freq&Prod')
-    objectAlarm = await server.nodes.objects.add_object(idx, 'Alarm')
-    objectConso = await server.nodes.objects.add_object(idx, 'Consommation')
     production = await objectFqandProd.add_variable(idx, 'production', 0)
     frequence = await objectFqandProd.add_variable(idx, 'frequence', ua.Variant(0, ua.VariantType.Double))
-    consommation = await objectConso.add_variable(idx, 'consommation', 0)
+
+    objectAlarm = await server.nodes.objects.add_object(idx, 'Alarm')
     alarmeFreq = await objectAlarm.add_variable(idx, 'alarme', 0)
+
+    objectConso = await server.nodes.objects.add_object(idx, 'Consommation')   
+    consommation = await objectConso.add_variable(idx, 'consommation', 0)
+    
     # Set MyVariable to be writable by clients
     await consommation.set_writable()
     await alarmeFreq.set_writable()

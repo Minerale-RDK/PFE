@@ -15,10 +15,10 @@ docker image build -t client docker-client-minimal_scada/v0.0.1/
 
 
 #lance le serveur-gene1, serveur-generateur
-docker run -d --env GENE=500 --name server-gene$count --network=network_0.1 serveur-generateur
+docker run -d --env GENE=500 --name server-gene0 --network=network_0.1 serveur-generateur
 
 ##lance le serveur-conso1, serveur-consommateur
-docker run -d --env CONSO=300 --name server-conso$count --network=network_0.1 serveur-consommateur
+docker run -d --env CONSO=300 --name server-conso0 --network=network_0.1 serveur-consommateur
 
 #Il est nécessaire de faire cet opération pour laisser les premières connexions s'établir
 sleep 6
