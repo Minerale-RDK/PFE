@@ -148,20 +148,22 @@ async def retrieveConsommationFromConsummer(url):
 
 
 async def main():
-    count = int(sys.argv[1])
+    NbConso = int(sys.argv[1])
+    NbGene = int(sys.argv[2])
     taskList = []
     global listDispo, listConso, matriceFin
-    listDispo = [0 for i in range(count)]
-    listConso = [0 for i in range(count)]
+    listDispo = [0 for i in range(NbGene)]
+    listConso = [0 for i in range(NbConso)]
     matriceFin = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
-    for i in range(count):
-        url_gene = 'opc.tcp://server-gene'+str(i)+':4840/freeopcua/server/'
+
+    # Creation des Generateurs et consommateurs
+    for i in range(NbConso):
         url_conso = 'opc.tcp://server-conso'+str(i)+':4840/freeopcua/server/consommateur'            
         taskList.append(retrieveConsommationFromConsummer(url_conso))
-        taskList.append(getDispatch(listDispo, listConso))
-        taskList.append(sendConsommationToGenerator(url_gene))      
-        
-
+    taskList.append(getDispatch(listDispo, listConso))
+    for i in range(NbGene):
+        url_gene = 'opc.tcp://server-gene'+str(i)+':4840/freeopcua/server/'
+        taskList.append(sendConsommationToGenerator(url_gene))
     
     L = await asyncio.gather(*taskList)
 
