@@ -155,7 +155,6 @@ def consum():
         build = "docker-server-minimal_consommateur/."
         image = "server-conso"+str(countConso)
         env = ["CONSO= "+listC[i]]
-        env.append("COUNT= "+str(countConso))
         vol = "0"
         conso= service(name, build,image,env,vol)
         tabService.append(conso)
@@ -167,7 +166,6 @@ def consum():
         build = "docker-server-minimal_generateur/v0.1.0/."
         image = "server-gene"+str(countGene)
         env = ["GENE= "+ listP[i]]
-        env.append("COUNT= "+str(countGene))
         vol = "0"
         gene= service(name, build,image,env,vol)
         tabService.append(gene)
@@ -198,8 +196,7 @@ def consum():
         name = "client_scada"+str(i)
         build = "docker-client-minimal_scada/v0.0.1/."
         image = "client-scada"+str(i)
-        env = ["COUNT= "+str(i)]
-        env.append("NbConso= "+str(len(listC)))
+        env = ["NbConso= "+str(len(listC))]
         env.append("NbGene= "+str(len(listP)))
         vol = "0"
         captor= service(name, build,image,env,vol)
