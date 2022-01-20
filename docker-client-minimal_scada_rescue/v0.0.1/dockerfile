@@ -13,13 +13,9 @@ RUN apk add build-base libffi-dev libc-dev
 RUN pip install --no-cache-dir asyncua
 
 #Copy the script
-#COPY client-minimal_scada_0.0.1.py client-minimal_scada_0.0.1.py
-#COPY script.sh /scripts
 COPY . /
 
-#ENV COUNT
-ENV NbConso
-ENV NbGene
+ENV COUNT=3
 
 #Run it
-CMD ["sh","-c","python3 -u client-minimal_scada_0.0.1.py $NbConso $NbGene"]
+CMD ["sh","-c","python3 -u client-minimal_scada_rescue.py $COUNT"]
