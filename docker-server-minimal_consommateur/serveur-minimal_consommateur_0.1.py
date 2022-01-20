@@ -85,7 +85,7 @@ async def main():
             #consommation+=1
             #print("consommation cote consommateur : {} à {}h ".format(consommationHoraire, cpt))
             await consommation1.write_value(consommationHoraire)
-            
+            print(consommation)
             cpt+=1
             if (cpt == 24):
                 #j += 1

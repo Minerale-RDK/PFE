@@ -73,6 +73,8 @@ async def main():
     uri = 'http://examples.freeopcua.github.io'
     idx = await server.register_namespace(uri)
 
+    # populating our address space
+    # server.nodes, contains links to very common nodes like objects and root
 
     objectCapaCoeff = await server.nodes.objects.add_object(idx, 'Capa&Coeff')
     capa = await objectCapaCoeff.add_variable(idx, 'capa', capacity)
@@ -87,6 +89,9 @@ async def main():
 
     objectConso = await server.nodes.objects.add_object(idx, 'Consommation')   
     consommation = await objectConso.add_variable(idx, 'consommation', 0)
+    
+    objectRealConso = await server.nodes.objects.add_object(idx, 'Captor')
+    realConsommation = await objectRealConso.add_variable(idx, 'realconso', 0)
     
     # Set MyVariable to be writable by clients
     await consommation.set_writable()
@@ -108,6 +113,7 @@ async def main():
                     start = False
                     break
             await asyncio.sleep(1)
+            
             newFreq = await Production(await consommation.read_value(), capacity, 0.05, production)
             if newFreq > 50.5:
                 await alarmeFreq.write_value(1)
@@ -117,6 +123,9 @@ async def main():
                 await alarmeFreq.write_value(0)           
             await frequence.write_value(newFreq)
             print("nouvelle frequence = ", await frequence.read_value(), "avec consommation", await consommation.read_value(), 'avec alarme = ', await alarmeFreq.read_value())
+            
+            # Conso Capteur
+            await realConsommation.write_value(await consommation.read_value())  
 
 
 if __name__ == '__main__':

@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  server-conso1:
+    build: docker-server-minimal_consommateur/.
+    image: server-conso1
+    environment:
+     - CONSO= 1
+     - COUNT= 1
+    restart: always
+
+
+  server-gene1:
+    build: docker-server-minimal_generateur/v0.1.0/.
+    image: server-gene1
+    environment:
+     - GENE= 1
+     - COUNT= 1
+    restart: always
+
+
+  client_captor1:
+    build: docker-client-minimal_captor/v0.0.1/.
+    image: client-captor1
+    environment:
+     - COUNT= 1
+    restart: always
+    volumes:
+     - volume1
+
+
+  client_scada1:
+    build: docker-client-minimal_scada/v0.0.1/.
+    image: client-scada1
+    environment:
+     - COUNT= 1
+     - NbConso= 1
+     - NbGene= 1
+    restart: always
+
+
+volumes:
+  volume1:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "C:/Users/gesli/OneDrive/Documents/ing5/pfe/data " 
+
