@@ -18,8 +18,8 @@ COPY . /
 
 #Pass the power generated as an environment variable
 ENV GENE=500
-
+ENV COEFF=0.15
 #Run it
 ##CMD ["python3", "-u", "server-minimal_generateur_0.1.0.py", "500"]
-CMD ["sh","-c","python3 -u server-minimal_generateur_0.1.0.py $GENE"]
+CMD ["sh","-c","python3 -u server-minimal_generateur_0.1.0.py $GENE $COEFF"]
 

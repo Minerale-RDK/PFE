@@ -39,6 +39,8 @@ async def Production(consommation, capacity, coef_vitesse, production):
     
     return f1
 
+def calcul_seuil(capacity):
+    return abs(0.5*500)
 
 @uamethod
 def func(parent, value):
@@ -47,16 +49,19 @@ def func(parent, value):
 async def main():
     _logger = logging.getLogger('asyncua')
 
+    '''
     # server encryption  
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("certificates/peer-certificate-client-scada-1.der", name='test_admin')
-
+    '''
     # setup our server
     capacity  = int(sys.argv[1]) #A changer avec type centrale qui va nous donner capacity et coeff vitesse
-    server = Server(user_manager=cert_user_manager)
+    coefficient  = float(sys.argv[2]) #A changer avec type centrale qui va nous donner capacity et coeff vitesse
+    server = Server()#user_manager=cert_user_manager)
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/')
 
+    '''
     # Security policy  
     server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
 
@@ -64,7 +69,7 @@ async def main():
     # This enables endpoints with signing and encryption.   
     await server.load_certificate("certificate-generateur.der")
     await server.load_private_key("privateKey.pem")
-
+    '''
     ##DEBUG
     print("##DEBUG\n GENE produit {} W \n##### ".format(capacity))
 
@@ -76,7 +81,8 @@ async def main():
 
     objectCapaCoeff = await server.nodes.objects.add_object(idx, 'Capa&Coeff')
     capa = await objectCapaCoeff.add_variable(idx, 'capa', capacity)
-    coeff = await objectCapaCoeff.add_variable(idx, 'coeff', 0.05)#Coeff en dur ici
+    coeff = await objectCapaCoeff.add_variable(idx, 'coeff', coefficient)#Coeff en dur ici
+
 
     objectFqandProd = await server.nodes.objects.add_object(idx, 'Freq&Prod')
     production = await objectFqandProd.add_variable(idx, 'production', 0)
