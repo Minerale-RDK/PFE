@@ -7,14 +7,17 @@ LABEL BuildDate="16/11/21"
 
 #We update it
 RUN apk update
-RUN apk add build-base libffi-dev libc-dev
+RUN apk add build-base libffi-dev libc-dev tk
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua
 
 #Copy the script
 #COPY client-minimal_scada_0.0.1.py client-minimal_scada_0.0.1.py
-#COPY script.sh /scripts
+
+COPY ./requirements.txt /
+RUN pip install -r requirements.txt
+
 COPY . /
 
 #ENV COUNT
@@ -22,4 +25,4 @@ ENV NbConso=0
 ENV NbGene=0
 
 #Run it
-CMD ["sh","-c","python3 -u client-minimal_scada_0.0.1.py $NbConso $NbGene"]
+CMD ["sh","-c","python3 -u clientminimalscada.py $NbConso $NbGene"]

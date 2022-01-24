@@ -5,6 +5,15 @@ import logging
 from asyncua import Client, Node, ua
 from threading import Thread
 from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
+from flask import Flask, render_template
+import os
+
+clientminimalscadarescue = Flask(__name__)
+
+@clientminimalscadarescue.route('/')
+def home():
+    return render_template('index_rescue.html')
+#app.run()
 
 consommationTotale = 0
 
@@ -193,6 +202,8 @@ async def main():
 
 if __name__ == '__main__':
 
+    port = int(os.environ.get('PORT', 5001))
+    clientminimalscadarescue.run(debug=True, host='0.0.0.0', port=port)
     asyncio.run(main())
 
 

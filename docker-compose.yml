@@ -30,6 +30,8 @@ services:
   client_scada1:
     build: docker-client-minimal_scada/.
     image: client-scada1
+    ports:
+      - "5000:5000"
     environment:
      - NbConso= 1
      - NbGene= 1
@@ -38,6 +40,8 @@ services:
   client_scada_rescue:
     build: docker-client-minimal_scada_rescue/.
     image: client-scada-rescue
+    ports:
+      - "5001:5001"
     environment:
      - NbConso= 1
      - NbGene= 1
@@ -49,5 +53,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: "/home/kali/PFE/data" 
+      device: "/home/kali/PFE/data"
+  volume2:
+
 
