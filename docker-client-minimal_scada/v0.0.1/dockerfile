@@ -18,8 +18,8 @@ RUN pip install --no-cache-dir asyncua
 COPY . /
 
 #ENV COUNT
-ENV NbConso
-ENV NbGene
+ENV NbConso=3
+ENV NbGene=2
 
 #Run it
 CMD ["sh","-c","python3 -u client-minimal_scada_0.0.1.py $NbConso $NbGene"]

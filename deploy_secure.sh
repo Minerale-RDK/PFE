@@ -25,4 +25,4 @@ docker run -d --env CONSO=200 --name server-conso2 --network=network_0.1 serveur
 sleep 6
 
 #lance le client Scada
-docker run --name client1 --env COUNT=1 --network=network_0.1 client 
+docker run --name client1 --env NbConso=3 --env NbGene=2 --network=network_0.1 client 
