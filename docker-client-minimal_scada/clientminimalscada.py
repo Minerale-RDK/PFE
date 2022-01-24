@@ -12,7 +12,7 @@ clientminimalscada = Flask(__name__)
 
 @clientminimalscada.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', client=3, generateur=3)
 #app.run()
 
 consommationTotale = 0
