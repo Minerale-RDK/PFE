@@ -7,7 +7,7 @@ LABEL BuildDate="16/11/21"
 
 #We update it
 RUN apk update
-RUN apk add build-base libffi-dev libc-dev tk
+RUN apk add --no-cache build-base libffi-dev libc-dev tk
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua
@@ -16,10 +16,16 @@ RUN pip install --no-cache-dir asyncua
 #Copy the script
 COPY . /
 
+RUN apk add --no-cache openssl
+RUN mkdir /certificates-all
+#RUN openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf -keyout certificates/privateKey.pem -out certificates/certificate.der
+
+VOLUME /certificates-all
+
+
 #Pass the power generated as an environment variable
 ENV GENE=500
 
 #Run it
-##CMD ["python3", "-u", "server-minimal_generateur_0.1.0.py", "500"]
 CMD ["sh","-c","python3 -u server-minimal_generateur_0.1.0.py $GENE"]
 

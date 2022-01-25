@@ -41,7 +41,7 @@ async def main():
 
     # server encryption  
     cert_user_manager = CertificateUserManager()
-    await cert_user_manager.add_admin("certificates/peer-certificate-client-scada-1.der", name='test_admin')
+    await cert_user_manager.add_admin("certificates-all/certificate-scada-1.der", name='admin_scada')
     
     # setup our server
     consommation  = int(sys.argv[1])
@@ -55,8 +55,8 @@ async def main():
 
     # Load server certificate and private key.
     # This enables endpoints with signing and encryption.   
-    await server.load_certificate("certificate-consommateur.der")
-    await server.load_private_key("privateKey.pem")
+    await server.load_certificate("/certificates-all/certificate-conso-1.der")
+    await server.load_private_key("private-key-conso-1.pem")
     
 
     ##DEBUG
@@ -79,7 +79,9 @@ async def main():
     #j = 0
     async with server:
         while True:
-            await asyncio.sleep(1)
+            # await asyncio.sleep(1)
+            #await asyncio.sleep(2)
+            await asyncio.sleep(4)
             consommationHoraire = Consumption(cpt,consommation)
             print(f'consommationHoraire = {consommationHoraire}')
             #consommation+=1
@@ -93,6 +95,16 @@ async def main():
                 cpt = 0
 
 
+import os 
 
 if __name__ == '__main__':
+
+    if not os.path.isfile("/certificates-all/certificate-conso-1.der"):
+        cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
+-keyout /private-key-conso-1.pem -outform der -out /certificates-all/certificate-conso-1.der")
+        os.system(cmd)
+    else:
+        print("FILE EXISTS")
+
+    
     asyncio.run(main(), debug=False)

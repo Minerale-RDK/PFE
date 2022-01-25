@@ -1,5 +1,6 @@
 import asyncio
 import sys
+import os 
 # sys.path.insert(0, "..")
 import logging
 from asyncua import Client, Node, ua
@@ -77,7 +78,7 @@ def testStatusClient():
 
     ##-W <sec> : Changer la durée d'attente de réponse DEFAULT=10 
     # response = os.system("ping -c 1 -W 5 client1 > /dev/null 2>&1")
-    response = os.system("ping -c 1 client1 > /dev/null 2>&1")
+    response = os.system("ping -c 1 client_scada1 > /dev/null 2>&1")
 
     if response == 0:
         # print("Client ACTIF")
@@ -105,7 +106,6 @@ async def sendConsommationToGenerator(url):
         server_certificate="certificates/certificate-generateur.der"
     )
     async with client :
-        _logger.info('Children of root are: %r', await client.nodes.root.get_children())
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
         alarmeHandler = AlarmeHandler(url)
@@ -158,7 +158,7 @@ async def retrieveConsommationFromConsummer(url):
     global listConso
     client = Client(url=url)
 
-    index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
+    index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
 
     await client.set_security(
         SecurityPolicyBasic256Sha256,
@@ -197,13 +197,23 @@ async def main():
         url_gene = 'opc.tcp://server-gene'+str(i+1)+':4840/freeopcua/server/'
         taskList.append(sendConsommationToGenerator(url_gene))
     
+    await asyncio.sleep(4)
+
     L = await asyncio.gather(*taskList)
 
 
+import os 
+
 if __name__ == '__main__':
 
-    port = int(os.environ.get('PORT', 5001))
-    clientminimalscadarescue.run(debug=True, host='0.0.0.0', port=port)
+    if not os.path.isfile("/certificates-all/certificate-scada-1.der"):
+        cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
+-keyout /private-key-scada-1.pem -outform der -out /certificates-all/certificate-scada-1.der")
+        os.system(cmd)
+    else:
+        print("FILE EXISTS")
+
+    port = int(os.environ.get('PORT', 5000))
+    clientminimalscada.run(debug=True, host='0.0.0.0', port=port)
+    
     asyncio.run(main())
-
-
