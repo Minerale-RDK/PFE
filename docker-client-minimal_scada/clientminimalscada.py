@@ -7,18 +7,25 @@ from threading import Thread
 from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
 from flask import Flask, render_template
 import os
+import numpy as np
 
 clientminimalscada = Flask(__name__)
 
 @clientminimalscada.route('/')
 def home():
-    return render_template('index.html', client=3, generateur=3)
-#app.run()
+    sum_gene  = [-1,1,-1]
+    conso = [300, 400, 200, 300, 400, 200, 300, 400, 200, 400]
+    prod = [500, 400, 200] 
+    client=10
+    
+    matrice, listeal = smartFunction(prod, conso)
+    sum_client = np.sum(matrice, axis=1)
+   
+    return render_template("index.html", client=client, generateur=3, mat = matrice, conso=conso, prod=prod, 
+                                    sum_client =sum_client, sum_gene=sum_gene); 
 
 consommationTotale = 0
 
-#listCapa = []
-#listCoeff = []
 listConso = []
 listDispo = []
 matriceFin = [[]]

@@ -12,7 +12,8 @@ clientminimalscadarescue = Flask(__name__)
 
 @clientminimalscadarescue.route('/')
 def home():
-    return render_template('index_rescue.html')
+    matrice = [[86, 62, 21], [31, 19, 6], [54, 45, 15]]
+    return render_template('index_rescue.html', client=3, generateur=3, matrice=matrice)
 #app.run()
 
 consommationTotale = 0

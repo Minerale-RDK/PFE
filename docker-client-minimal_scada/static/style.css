@@ -1,25 +1,46 @@
+#schema{
+    border-width: 1px;
+    border-style: solid;
+    padding: 10;
+}
+#legende{
+    border-width: 1px;
+    border-style: dashed;
+    padding: 10;
+}
+
 .gene{
     width: 100px;  
     height: 100px; 
     margin: 10; 
+    margin-left: 30px;
     margin-bottom: 80; 
     border-radius: 5%;
     background:#333; 
     display: inline-block;
 }
 
+
 .gene p, .client p{
-    margin-top:40px;
+    margin-top:30px;
     color: white;
 }
+
 .client{
     width: 100px; 
     height: 100px; 
     background:#777; 
     margin:10; 
+    margin-left: 50px;
+    margin-top: 50px;
     border-radius: 100%; 
     display: inline-block;
 }
+
+.ligne p{
+    margin-top: 20px;
+}
+
 body{
     text-align: center;
 }
