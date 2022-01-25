@@ -7,7 +7,9 @@ services:
     environment:
      - CONSO= 150
     restart: always
-
+    volumes:
+      - certificates-volume:/certificates-all
+    
 
   server-gene1:
     build: docker-server-minimal_generateur/.
@@ -15,6 +17,8 @@ services:
     environment:
      - GENE= 500
     restart: always
+    volumes:
+      - certificates-volume:/certificates-all
 
 
   client_captor1:
@@ -25,6 +29,7 @@ services:
     restart: always
     volumes:
      - volume1:/data
+     - certificates-volume:/certificates-all
 
 
   client_scada1:
@@ -34,6 +39,11 @@ services:
      - NbConso= 1
      - NbGene= 1
     restart: always
+    ports:
+      - "2222:22"
+    volumes:
+      - certificates-volume:/certificates-all
+
 
   client_scada_rescue:
     build: docker-client-minimal_scada_rescue/.
@@ -42,6 +52,8 @@ services:
      - NbConso= 1
      - NbGene= 1
     restart: always
+    volumes:
+      - certificates-volume:/certificates-all
 
 volumes:
   volume1:
@@ -49,5 +61,12 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: "/home/kali/PFE/data" 
+      device: "data"
+
+  certificates-volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "certificates-all"
 

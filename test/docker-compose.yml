@@ -25,7 +25,7 @@ services:
       image: client1-scada
       environment: 
         - COUNT=1
-      networks: 
+      networks:
         - networks1
       restart: always
 
@@ -39,10 +39,6 @@ services:
       restart: always
       volumes: 
         - real_conso:/data
-
-networks:
-  networks1:
-    #driver: custom-driver-1   
 
 volumes:
   real_conso:

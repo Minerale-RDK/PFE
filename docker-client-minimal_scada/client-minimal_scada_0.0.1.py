@@ -56,12 +56,15 @@ async def getDispatch(listConso, listDispo):
     while True:
         matriceFin, listAlarm = smartFunction(listConso, listDispo)
         #print(f'getDispatcj = {listConso}')
-        await asyncio.sleep(0.15)
+        # await asyncio.sleep(0.15)
+        await asyncio.sleep(2.15)
 
 # variables certificat chiffrement
 cert_idx = 1
-cert = f"peer-certificate-client-scada-{cert_idx}.der"
-private_key = f"peer-private-key-client-scada-{cert_idx}.pem"
+# cert = f"peer-certificate-client-scada-{cert_idx}.der"
+# private_key = f"peer-private-key-client-scada-{cert_idx}.pem"
+cert = f"/certificates-all/certificate-scada-1.der"
+private_key = f"private-key-scada-1.pem"
 
 async def sendConsommationToGenerator(url):
     global consommationTotale
@@ -74,7 +77,7 @@ async def sendConsommationToGenerator(url):
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
-        server_certificate="certificates/certificate-generateur.der"
+        server_certificate="/certificates-all/certificate-gene-1.der"
     )
     async with client :
         #print("TEst generateur connection")   
@@ -101,7 +104,9 @@ async def sendConsommationToGenerator(url):
         
         while True:
             consoTotale = 0
-            await asyncio.sleep(1)
+            # await asyncio.sleep(1)
+            # await asyncio.sleep(2)
+            await asyncio.sleep(4)
             
             for i in range(len(listConso)):
                 print(f'matriceFin = {matriceFin[i][int(index)]}')
@@ -131,7 +136,7 @@ async def retrieveConsommationFromConsummer(url):
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
-        server_certificate="certificates/certificate-consommateur.der"
+        server_certificate="/certificates-all/certificate-conso-1.der"
     )
     async with client:
         #print("TEst consommateur connection")              
@@ -140,7 +145,9 @@ async def retrieveConsommationFromConsummer(url):
         consommationConsommateurObject = await client.nodes.root.get_child(["0:Objects", f"{idx}:Conso", f"{idx}:consommation"])
         #print(client.__str__())
         while True:
-            await asyncio.sleep(1.05)
+            # await asyncio.sleep(1.05)
+            # await asyncio.sleep(2.05)
+            await asyncio.sleep(4.05)
             listConso[index] = await consommationConsommateurObject.read_value()
             print(f'consommation = {listConso[int(index)]}')
     
@@ -172,7 +179,23 @@ async def main():
     L = await asyncio.gather(*taskList)
 
 
+import os 
+
 if __name__ == '__main__':
+
+#     cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
+# -keyout /private-key-scada-1.pem -outform der -out /certificates-all/certificate-scada-1.der")
+    # os.system(cmd)
+
+    # os.system("sleep 3")
+
+    if not os.path.isfile("/certificates-all/certificate-scada-1.der"):
+        cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
+-keyout /private-key-scada-1.pem -outform der -out /certificates-all/certificate-scada-1.der")
+        os.system(cmd)
+    else:
+        print("FILE EXISTS")
+
 
     asyncio.run(main())
 

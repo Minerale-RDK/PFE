@@ -11,13 +11,20 @@ RUN apk add build-base libffi-dev libc-dev
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua
+
 #Copy the script
-#COPY client-minimal_capteur.py client-minimal_capteur.py
-#COPY consumption.c consumption.c
 COPY . /
+
+
+#Manage certificates
+RUN apk add --no-cache openssl
+RUN mkdir /certificates-all
+# RUN openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf -keyout /peer-private-key-client-capteur-.pem -out /certificates-all/peer-certificate-client-capteur-1.der
+
+
+VOLUME /certificates-all
 
 ENV COUNT=0
 
 #Run it
-##CMD ["python3", "-u", "client-minimal_capteur.py"]
 CMD ["sh","-c","python3 -u client-minimal_capteur.py $COUNT"]
