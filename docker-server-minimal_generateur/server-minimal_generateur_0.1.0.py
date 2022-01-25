@@ -49,8 +49,8 @@ async def main():
 
     # server encryption  
     cert_user_manager = CertificateUserManager()
-    await cert_user_manager.add_admin("certificates/peer-certificate-client-scada-1.der", name='admin_scada')
-    await cert_user_manager.add_admin("certificates/peer-certificate-client-capteur-1.der", name='admin_capteur')
+    await cert_user_manager.add_admin("/certificates-all/certificate-scada-1.der", name='admin_scada')
+    await cert_user_manager.add_admin("/certificates-all/certificate-capteur-1.der", name='admin_capteur')
 
     # setup our server
     capacity  = int(sys.argv[1]) #A changer avec type centrale qui va nous donner capacity et coeff vitesse
@@ -63,8 +63,8 @@ async def main():
 
     # Load server certificate and private key.
     # This enables endpoints with signing and encryption.   
-    await server.load_certificate("certificate-generateur.der")
-    await server.load_private_key("privateKey.pem")
+    await server.load_certificate("/certificates-all/certificate-gene-1.der")
+    await server.load_private_key("private-key-gene-1.pem")
 
     ##DEBUG
     print("##DEBUG\n GENE produit {} W \n##### ".format(capacity))
@@ -104,7 +104,9 @@ async def main():
         start = True
         while True:
             while start:
-                await asyncio.sleep(0.5)
+                # await asyncio.sleep(0.5)
+                # await asyncio.sleep(1.5)
+                await asyncio.sleep(2.5)
                 conso = await consommation.read_value()
                 if conso == 0:
                     print("nouvelle frequence = ", await frequence.read_value(), "avec consommation", await consommation.read_value(), 'avec alarme = ', await alarmeFreq.read_value())
@@ -113,7 +115,9 @@ async def main():
                     await production.write_value(conso)
                     start = False
                     break
-            await asyncio.sleep(1)
+            # await asyncio.sleep(1)
+            # await asyncio.sleep(2)
+            await asyncio.sleep(4)
             
             newFreq = await Production(await consommation.read_value(), capacity, 0.05, production)
             if newFreq > 50.5:
@@ -128,7 +132,15 @@ async def main():
             # Conso Capteur
             await realConsommation.write_value(await consommation.read_value())  
 
+import os 
 
 if __name__ == '__main__':
+
+    if not os.path.isfile("/certificates-all/certificate-gene-1.der"):
+        cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
+-keyout /private-key-gene-1.pem -outform der -out /certificates-all/certificate-gene-1.der")
+        os.system(cmd)
+    else:
+        print("FILE EXISTS")
 
     asyncio.run(main(), debug=False)
