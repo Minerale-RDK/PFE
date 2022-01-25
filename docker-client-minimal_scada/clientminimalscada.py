@@ -13,65 +13,108 @@ clientminimalscada = Flask(__name__)
 @clientminimalscada.route('/')
 def home():
     return render_template('index.html', client=3, generateur=3)
-#app.run()
+
 
 consommationTotale = 0
 
 #listCapa = []
-#listCoeff = []
+listCoeff = []
 listConso = []
 listDispo = []
 matriceFin = [[]]
 listAlarm = []
 
-#doit être dans un while true
-def smartFunction(listConso, listDispo):
+def orderGene(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
+    augmentation = True
+    listeTrie = []
+    matricePasTrie = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
+    matriceTrie = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
+    matricePrecTrie = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
+    matricePrecCopy = matricePrec.copy()
+    listDispoCopy = listDispo.copy()
+    listConsoCopy = listConso.copy()
+    indexListCroissant = sorted(range(len(listeCoeff)), key=lambda k: listeCoeff[k],reverse=True)
+    for i in indexListCroissant:
+        listeTrie.append(listDispo[i])
+    for i in range(len(listConso)):
+        for j in range(len(listDispo)):
+            matricePrecTrie[i][j] = matricePrec[i][indexListCroissant[j]]
+    matricePasTrie = smartFunction(listConso, listeTrie, listeCoeff, matricePrecTrie, 1)
+    
+    for i in range(len(listConso)):
+        for j in range(len(listDispo)):
+            matriceTrie[i][indexListCroissant[j]] = matricePasTrie[i][j]
+    return matriceTrie
+            
+    
+def smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
     matrice = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
-    #for i in range(len(listConso)):
-        #demande = listConso[i]
     listConsoInit = listConso.copy()
     listeConsoCopy = listConso.copy()
     listeDispoCopy = listDispo.copy()
+    listeCapa = listDispo.copy()
     listAlarm = []
-    for j in range(len(listDispo)):
-        while listeDispoCopy[j] > 0:
-            for i in range(len(listConso)):
-                demande = listeConsoCopy[i] #Conso = 200 Dispo = 500 - Conso2 =400 Dispo = 300
-                if demande <= listeDispoCopy[j]: #True - False
-                    listeDispoCopy[j] -= demande #Dispo = 300
-                    matrice[i][j] = demande#Case gene1 conso1 = 200
-                    listeConsoCopy[i] = 0
-                else:
-                    ecart = listeConsoCopy[i] - listeDispoCopy[j] #Demande 400 Dispo 300 ecart = 100
-                    listeDispoCopy[j] -= demande - ecart #Dispo = 0
-                    matrice[i][j] = demande - ecart#Case gene1 conso1 = 200
-                    listeConsoCopy[i] = ecart
-            break
-    for i in range(len(listConsoInit)):
-        ecart = listConsoInit[i] - sum(matrice[i])
-        #print(f'ecart = {ecart}')
-        if ecart != 0:
-            listAlarm.append(ecart)
+    listEcartAP = []
+    listeEcartNow = []
+    listeSumEcart= []
+    listePb = [0 for i in range(len(listDispo))]
+    
+    
+    for y in range(vitesseRemp):        
+        for j in range(len(listDispo)):
+            while round(listeDispoCopy[j]*1/vitesseRemp) > 0:
+                for i in range(len(listConso)):
+                    demande = listeConsoCopy[i]
+                    if demande <= round(listeDispoCopy[j]*1/vitesseRemp): #True - False
+                        listeDispoCopy[j] -= demande #Dispo = 300
+                        matrice[i][j] += demande#Case gene1 conso1 = 200
+                        listeConsoCopy[i] = 0
+                    else:
+                        ecart = listeConsoCopy[i] - round(listeDispoCopy[j]*1/vitesseRemp) #Demande 400 Dispo 300 ecart = 100
+                        listeDispoCopy[j] -= demande - ecart #Dispo = 0
+                        matrice[i][j] += demande - ecart#Case gene1 conso1 = 200
+                        listeConsoCopy[i] = ecart
+                break
+                
+    for h in range(len(listeDispoCopy)):
+        a=0
+        for g in range(len(matrice)):
+            a += matricePrec[g][h]
+        listEcartAP.append(a)
+
+    for h in range(len(listeDispoCopy)):
+        a=0        
+        for g in range(len(matrice)):           
+            a += matrice[g][h]
+        listeEcartNow.append(a)
+    
+    for h in range(len(listeEcartNow)):
+        listeSumEcart.append(abs(listeEcartNow[h]-listEcartAP[h]))
+    
+    for h in range(len(listeDispoCopy)):
+        if listeSumEcart[h] >= (listeCapa[h]*listeCoeff[h]):
+            listePb[h] = 1
+    if sum(listePb) == 0:
+        return matrice
+    
+    else:
+        if vitesseRemp != 10:
+            return smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp+1)
         else:
-            listAlarm.append(0)
-    #print(f'smart function = {matrice}')
-    #print(f'liste alarmes ={listAlarm}')
-    return matrice, listAlarm
+            return matrice
 
 
-async def getDispatch(listConso, listDispo):
-    global matriceFin, listAlarm
-    #print(f'getDispatcj22222 = {listConso}')
+async def getDispatch(listConso, listDispo, listeCoeff):
+    global matriceFin
+    matriceFin = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
     while True:
-        matriceFin, listAlarm = smartFunction(listConso, listDispo)
-        #print(f'getDispatcj = {listConso}')
-        # await asyncio.sleep(0.15)
-        await asyncio.sleep(2.15)
+        matriceFin = smartFunction(listConso, listDispo, listeCoeff,matriceFin,1 )
+        print(f'matrice Fin = {matriceFin}')
+        await asyncio.sleep(1)
+
 
 # variables certificat chiffrement
 cert_idx = 1
-# cert = f"peer-certificate-client-scada-{cert_idx}.der"
-# private_key = f"peer-private-key-client-scada-{cert_idx}.pem"
 cert = f"/certificates-all/certificate-scada-1.der"
 private_key = f"private-key-scada-1.pem"
 
@@ -106,7 +149,10 @@ async def sendConsommationToGenerator(url):
         #listDispo.append(await capacity.read_value())
 
         coeff = await client.nodes.root.get_child(["0:Objects", f"{idx}:Capa&Coeff", f"{idx}:coeff"])
-        #listCoeff.append(await coeff.read_value())
+        
+        listCoeff[int(index)] = await capacity.read_value()*await coeff.read_value()
+        print(f'liste coeff = {listCoeff}, index = {index}, listeConso = {listConso}')
+       
         # We subscribe to data changes for 1 node, l'alarme du générateur.
         await alarmeSubscription.subscribe_data_change(node)
         conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
@@ -118,8 +164,8 @@ async def sendConsommationToGenerator(url):
             await asyncio.sleep(4)
             
             for i in range(len(listConso)):
-                print(f'matriceFin = {matriceFin[i][int(index)]}')
-                consoTotale += matriceFin[i][int(index)]
+
+            consoTotale += matriceFin[i][int(index)]
             print(f"Sending {consoTotale} W of consommation to {url}")
             await conso.write_value(consoTotale)
         
@@ -158,7 +204,7 @@ async def retrieveConsommationFromConsummer(url):
             # await asyncio.sleep(2.05)
             await asyncio.sleep(4.05)
             listConso[index] = await consommationConsommateurObject.read_value()
-            print(f'consommation = {listConso[int(index)]}')
+            print(f'consommation = {listConso[int(index)]} à l\'index {index}')
     
 
 
@@ -166,23 +212,22 @@ async def retrieveConsommationFromConsummer(url):
 async def main():
     NbConso = int(sys.argv[1])
     NbGene = int(sys.argv[2])
-    print("NbConso : ",NbConso)
-    print("NbGene : ",NbGene)
+    # print("NbConso : ",NbConso)
+    # print("NbGene : ",NbGene)
     taskList = []
-    global listDispo, listConso, matriceFin
+    global listDispo, listConso, listCoeff, matriceFin
     listDispo = [0 for i in range(NbGene)]
     listConso = [0 for i in range(NbConso)]
+    listCoeff = [0 for i in range(NbGene)]
     matriceFin = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
 
     # Creation des Generateurs et consommateurs
     for i in range(NbConso):
-        url_conso = 'opc.tcp://server-conso'+str(i+1)+':4840/freeopcua/server/consommateur'
-        print(url_conso)            
+        url_conso = 'opc.tcp://server-conso'+str(i+1)+':4840/freeopcua/server/consommateur'         
         taskList.append(retrieveConsommationFromConsummer(url_conso))
-    taskList.append(getDispatch(listDispo, listConso))
+    taskList.append(getDispatch(listDispo, listConso,listeCoeff))
     for i in range(NbGene):
         url_gene = 'opc.tcp://server-gene'+str(i+1)+':4840/freeopcua/server/'
-        print(url_gene)
         taskList.append(sendConsommationToGenerator(url_gene))
     
     L = await asyncio.gather(*taskList)
