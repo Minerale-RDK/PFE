@@ -7,7 +7,11 @@ LABEL BuildDate="16/11/21"
 
 #We update it
 RUN apk update
+<<<<<<< HEAD
 RUN apk add --no-cache build-base libffi-dev libc-dev
+=======
+RUN apk add build-base libffi-dev libc-dev tk
+>>>>>>> 543dd78f3e5ecf2ce2d9369557926e60dccab8db
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua
@@ -21,6 +25,14 @@ RUN apk add openssh && \
 EXPOSE 22
 
 #Copy the script
+<<<<<<< HEAD
+=======
+#COPY client-minimal_scada_0.0.1.py client-minimal_scada_0.0.1.py
+
+COPY ./requirements.txt /
+RUN pip install -r requirements.txt
+
+>>>>>>> 543dd78f3e5ecf2ce2d9369557926e60dccab8db
 COPY . /
 
 RUN apk add --no-cache openssl
@@ -34,6 +46,10 @@ ENV NbConso=0
 ENV NbGene=0
 
 #Run it
+<<<<<<< HEAD
 #CMD ["sh","-c","/usr/sbin/sshd && python3 -u client-minimal_scada_0.0.1.py $NbConso $NbGene"]
 CMD ["sh","-c","/usr/sbin/sshd && python3 -u client-minimal_scada_0.0.1.py $NbConso $NbGene"]
 
+=======
+CMD ["sh","-c","python3 -u clientminimalscada.py $NbConso $NbGene"]
+>>>>>>> 543dd78f3e5ecf2ce2d9369557926e60dccab8db

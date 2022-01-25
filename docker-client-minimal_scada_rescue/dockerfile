@@ -13,6 +13,9 @@ RUN apk add build-base libffi-dev libc-dev
 RUN pip install --no-cache-dir asyncua
 
 #Copy the script
+COPY ./requirements.txt /
+RUN pip install -r requirements.txt
+
 COPY . /
 
 RUN apk add --no-cache openssl

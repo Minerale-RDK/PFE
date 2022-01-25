@@ -1,0 +1,25 @@
+.gene{
+    width: 100px;  
+    height: 100px; 
+    margin: 10; 
+    margin-bottom: 80; 
+    border-radius: 5%;
+    background:#333; 
+    display: inline-block;
+}
+
+.gene p, .client p{
+    margin-top:40px;
+    color: white;
+}
+.client{
+    width: 100px; 
+    height: 100px; 
+    background:#777; 
+    margin:10; 
+    border-radius: 100%; 
+    display: inline-block;
+}
+body{
+    text-align: center;
+}
