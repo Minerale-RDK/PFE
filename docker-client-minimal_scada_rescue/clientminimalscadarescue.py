@@ -215,6 +215,6 @@ if __name__ == '__main__':
         print("FILE EXISTS")
 
     port = int(os.environ.get('PORT', 5000))
-    clientminimalscada.run(debug=True, host='0.0.0.0', port=port)
+    clientminimalscadarescue.run(debug=True, host='0.0.0.0', port=port)
     
     asyncio.run(main())

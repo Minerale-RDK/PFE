@@ -37,12 +37,11 @@ services:
     image: client-scada1
     ports:
       - "5000:5000"
+      - "2222:22"
     environment:
      - NbConso= 1
      - NbGene= 1
     restart: always
-    ports:
-      - "2222:22"
     volumes:
       - certificates-volume:/certificates-all
 

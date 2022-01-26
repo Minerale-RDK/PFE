@@ -7,20 +7,19 @@ from threading import Thread
 from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
 from flask import Flask, render_template
 import os
-import numpy as np
 
 clientminimalscada = Flask(__name__)
 
 @clientminimalscada.route('/')
 def home():
 
+    sum_client = [100, 400, 200, 400, 400, 200, 300, 300, 200, 400]
     sum_gene  = [-1,1,-1]
     conso = [300, 400, 200, 300, 400, 200, 300, 400, 200, 400]
     prod = [500, 400, 200] 
     client=10
     
-    matrice, listeal = smartFunction(prod, conso)
-    sum_client = np.sum(matrice, axis=1)
+    matrice = matriceFin.copy()
    
     return render_template("index.html", client=client, generateur=3, mat = matrice, conso=conso, prod=prod, 
                                     sum_client =sum_client, sum_gene=sum_gene); 
@@ -169,15 +168,14 @@ async def sendConsommationToGenerator(url):
         
         while True:
             consoTotale = 0
-            # await asyncio.sleep(1)
+            await asyncio.sleep(1)
             # await asyncio.sleep(2)
-            await asyncio.sleep(4)
+            # await asyncio.sleep(4)
             
             for i in range(len(listConso)):
-
-            consoTotale += matriceFin[i][int(index)]
-            print(f"Sending {consoTotale} W of consommation to {url}")
-            await conso.write_value(consoTotale)
+                consoTotale += matriceFin[i][int(index)]
+                print(f"Sending {consoTotale} W of consommation to {url}")
+                await conso.write_value(consoTotale)
         
         #return client
         
@@ -247,7 +245,7 @@ import os
 
 if __name__ == '__main__':
 
-   if not os.path.isfile("/certificates-all/certificate-scada-1.der"):
+    if not os.path.isfile("/certificates-all/certificate-scada-1.der"):
         cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
 -keyout /private-key-scada-1.pem -outform der -out /certificates-all/certificate-scada-1.der")
         os.system(cmd)
@@ -255,7 +253,7 @@ if __name__ == '__main__':
         print("FILE EXISTS")
 
     port = int(os.environ.get('PORT', 5000))
-    clientminimalscada.run(debug=True, host='0.0.0.0', port=port)
+    clientminimalscada.run(debug=True, host='0.0.0.0', port=port,use_reloader=True)
     
     asyncio.run(main())
 

@@ -29,4 +29,4 @@ ENV NbConso=0
 ENV NbGene=0
 
 #Run it
-CMD ["sh","-c","python3 -u client-minimal_scada_rescue.py $NbConso $NbGene"]
+CMD ["sh","-c","python3 -u clientminimalscadarescue.py $NbConso $NbGene"]
