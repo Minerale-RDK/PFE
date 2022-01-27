@@ -14,6 +14,7 @@ clientminimalscada = Flask(__name__)
 
 @clientminimalscada.route('/')
 def home():
+    global listConso,listDispo,matriceFin
 
     global matriceFin, alarmesGene, ecartDemCons
     
@@ -147,16 +148,15 @@ async def sendConsommationToGenerator(url):
     global listCoeff, listCapa
 
     index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
-    #print(f'index = {index}')
     client = Client(url=url)
-    '''
+
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
-        server_certificate="/certificates-all/certificate-gene-1.der"
+        server_certificate=f"/certificates-all/certificate-gene-{index+1}.der"
     )
-    '''
+    
     async with client :
         #print(f"TEst generateur connection et url = {url}")   
         uri = 'http://examples.freeopcua.github.io'
@@ -185,7 +185,7 @@ async def sendConsommationToGenerator(url):
         
         while True:
             consoTotale = 0
-            await asyncio.sleep(1)
+            await asyncio.sleep(1.5)
             # await asyncio.sleep(2)
             # await asyncio.sleep(4)
             
@@ -212,14 +212,14 @@ async def retrieveConsommationFromConsummer(url):
     client = Client(url=url)
 
     index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
-    '''
+
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
-        server_certificate="/certificates-all/certificate-conso-1.der"
+        server_certificate=f"/certificates-all/certificate-conso-{index+1}.der"
     )
-    '''
+
     async with client:
         #print("TEst consommateur connection")              
         uri = 'http://examples.freeopcua.github.io'
@@ -227,14 +227,11 @@ async def retrieveConsommationFromConsummer(url):
         consommationConsommateurObject = await client.nodes.root.get_child(["0:Objects", f"{idx}:Conso", f"{idx}:consommation"])
         #print(client.__str__())
         while True:
-            # await asyncio.sleep(1.05)
-            # await asyncio.sleep(2.05)
-            await asyncio.sleep(4.05)
+            await asyncio.sleep(1.5)
+            # await asyncio.sleep(4.05)
             listConso[index] = await consommationConsommateurObject.read_value()
-            print(f'consommation = {listConso[int(index)]} à l\'index {index}')
+            print(f'consommation = {listConso[index]} à l\'index {index}')
     
-
-
 
 async def main():
     NbConso = int(sys.argv[1])
@@ -265,35 +262,19 @@ async def main():
 import os
 
 def starter():
+    print("LAUCHING")
     asyncio.run(main())
 
 
 if __name__ == '__main__':
 
-    # os.system("sleep 4")
-    
-    # if not os.path.isfile("/certificates-all/certificate-scada-1.der"):
-    '''
-    if not os.path.isfile("/private-key-scada-1.pem"):
-        cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
--keyout /private-key-scada-1.pem -outform der -out /certificates-all/certificate-scada-1.der && echo ##### key added")
-        os.system(cmd)
-    else:
-        print("FILE EXISTS")
-    '''
-
+    os.system("sleep 3")
     port = int(os.environ.get('PORT', 5000))
 
-    # function = asyncio.run()
-    
-    os.system("sleep 4")
-    
     p = Thread(target=starter)
     p.start()
 
 
     clientminimalscada.run(debug=True, host='0.0.0.0', port=port,use_reloader=True)
-    
-    # asyncio.run(main())
 
 

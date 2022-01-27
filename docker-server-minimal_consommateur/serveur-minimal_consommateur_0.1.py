@@ -1,20 +1,24 @@
 import logging
 import asyncio
-import sys
-sys.path.insert(0, "..")
+import sys,json
+import os
 
 from asyncua import ua, Server
 from asyncua.common.methods import uamethod
 
 import random
-import time
 import math
 
 from asyncua.crypto.permission_rules import SimpleRoleRuleset
 from asyncua.server.users import UserRole
 from asyncua.server.user_managers import CertificateUserManager
 
-starttime=time.time()
+# index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
+# DOCKERINFO = os.system("export DOCKERINFO=$(curl -s --unix-socket /run/docker.sock http://docker/containers/$HOSTNAME/json)")
+DOCKERINFO = os.popen("curl -s --unix-socket /run/docker.sock http://docker/containers/$HOSTNAME/json").read()
+Name = json.loads(DOCKERINFO)["Name"].split("_")[1]
+index = int(Name.split('server-conso')[1][:1])
+
 
 @uamethod
 def func(parent, value):
@@ -40,10 +44,10 @@ async def main():
     _logger = logging.getLogger('asyncua')
 
     # server encryption  
-    '''
+
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("certificates-all/certificate-scada-1.der", name='admin_scada')
-    '''
+
     # setup our server
     consommation  = int(sys.argv[1])
     
@@ -53,16 +57,15 @@ async def main():
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/consommateur')
 
     # Security policy  
-    '''
     server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
-    '''
+
 
     # Load server certificate and private key.
-    # This enables endpoints with signing and encryption.
-    '''   
-    await server.load_certificate("/certificates-all/certificate-conso-1.der")
-    await server.load_private_key("private-key-conso-1.pem")
-    '''
+    # This enables endpoints with signing and encryption.   
+
+    await server.load_certificate(f"/certificates-all/certificate-conso-{index}.der")
+    await server.load_private_key(f"private-key-conso-{index}.pem")
+    
 
     ##DEBUG
     print("##DEBUG\n CONSO consomme {} W \n##### ".format(consommation))
@@ -100,17 +103,6 @@ async def main():
                 cpt = 0
 
 
-import os 
-
 if __name__ == '__main__':
-    '''
-    if not os.path.isfile("/certificates-all/certificate-conso-1.der"):
-        cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
--keyout /private-key-conso-1.pem -outform der -out /certificates-all/certificate-conso-1.der")
-        os.system(cmd)
-    else:
-        print("FILE EXISTS")
-    '''
 
-    
     asyncio.run(main(), debug=False)
