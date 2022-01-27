@@ -27,12 +27,14 @@ async def RealConsoSendByTheGenerator(url):
     global data
     #print("in RealCOnso : ", url)
     client = Client(url=url)
+    '''
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate="/certificates-all/certificate-gene-1.der"
     )
+    '''
     async with client:
         _logger.info('Children of root are: %r', await client.nodes.root.get_children())
         uri = 'http://examples.freeopcua.github.io'
@@ -65,7 +67,8 @@ import os
 
 if __name__ == '__main__':
 
-    index = int(sys.argv[1])    
+    index = int(sys.argv[1]) 
+    '''   
     if not os.path.isfile("/certificates-all/certificate-capteur-1.der"):
         cmd = (f"openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
 -keyout /private-key-capteur-{index}.pem -outform der -out /certificates-all/certificate-capteur-{index}.der")
@@ -73,6 +76,7 @@ if __name__ == '__main__':
         os.system(cmd)
     else:
         print("FILE EXISTS")
+    '''
 
     print("SERVERS COUNT is ",int(sys.argv[1]))
     asyncio.run(main())

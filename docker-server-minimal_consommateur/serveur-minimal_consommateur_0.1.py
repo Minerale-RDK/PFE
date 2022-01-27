@@ -32,7 +32,7 @@ def Consumption(cpt,consumption):
         consommation = random.uniform(0.75*consumption,1.04*consumption)
     # Soir
     elif (cpt in range (19,24)):
-        consommation = 2#random.uniform(1.02*consumption,1.34*consumption)
+        consommation = 500#random.uniform(1.02*consumption,1.34*consumption)
     return int(consommation)
 
 
@@ -40,24 +40,29 @@ async def main():
     _logger = logging.getLogger('asyncua')
 
     # server encryption  
+    '''
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("certificates-all/certificate-scada-1.der", name='admin_scada')
-    
+    '''
     # setup our server
     consommation  = int(sys.argv[1])
-    server = Server(user_manager=cert_user_manager)
+    
+    server = Server()#user_manager=cert_user_manager)
+    
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/consommateur')
 
     # Security policy  
+    '''
     server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
-    
+    '''
 
     # Load server certificate and private key.
-    # This enables endpoints with signing and encryption.   
+    # This enables endpoints with signing and encryption.
+    '''   
     await server.load_certificate("/certificates-all/certificate-conso-1.der")
     await server.load_private_key("private-key-conso-1.pem")
-    
+    '''
 
     ##DEBUG
     print("##DEBUG\n CONSO consomme {} W \n##### ".format(consommation))
@@ -98,13 +103,14 @@ async def main():
 import os 
 
 if __name__ == '__main__':
-
+    '''
     if not os.path.isfile("/certificates-all/certificate-conso-1.der"):
         cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
 -keyout /private-key-conso-1.pem -outform der -out /certificates-all/certificate-conso-1.der")
         os.system(cmd)
     else:
         print("FILE EXISTS")
+    '''
 
     
     asyncio.run(main(), debug=False)

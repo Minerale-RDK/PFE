@@ -100,12 +100,14 @@ async def sendConsommationToGenerator(url):
     index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
     #print(f'index = {index}')
     client = Client(url=url)
+    '''
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate="certificates/certificate-generateur.der"
     )
+    '''
     async with client :
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
@@ -160,13 +162,14 @@ async def retrieveConsommationFromConsummer(url):
     client = Client(url=url)
 
     index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
-
+    '''
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate="certificates/certificate-consommateur.der"
     )
+    '''
     async with client:
         #print("TEst consommateur connection")              
         uri = 'http://examples.freeopcua.github.io'
@@ -207,12 +210,14 @@ import os
 
 if __name__ == '__main__':
 
+    '''
     if not os.path.isfile("/certificates-all/certificate-scada-1.der"):
         cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
 -keyout /private-key-scada-1.pem -outform der -out /certificates-all/certificate-scada-1.der")
         os.system(cmd)
     else:
         print("FILE EXISTS")
+    '''
 
     port = int(os.environ.get('PORT', 5000))
     clientminimalscadarescue.run(debug=True, host='0.0.0.0', port=port)

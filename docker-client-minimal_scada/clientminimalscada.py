@@ -1,6 +1,6 @@
 import asyncio
 import sys
-# sys.path.insert(0, "..")
+
 import logging
 from asyncua import Client, Node, ua
 from threading import Thread
@@ -8,20 +8,26 @@ from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
 from flask import Flask, render_template
 import os
 
+from multiprocessing import Process
+
 clientminimalscada = Flask(__name__)
 
 @clientminimalscada.route('/')
 def home():
 
-    sum_client = [100, 400, 200, 400, 400, 200, 300, 300, 200, 400]
-    sum_gene  = [-1,1,-1]
-    conso = [300, 400, 200, 300, 400, 200, 300, 400, 200, 400]
-    prod = [500, 400, 200] 
-    client=10
+    global matriceFin, alarmesGene, ecartDemCons
     
     matrice = matriceFin.copy()
-   
-    return render_template("index.html", client=client, generateur=3, mat = matrice, conso=conso, prod=prod, 
+    print(f'Matrice == {matrice}')
+    generateur = len(matrice[0])
+    conso = listConso.copy()
+    prod = listDispo.copy()
+    client= len(matrice)
+    sum_client = ecartDemCons.copy()#Liste alarmes des consomateurs
+    sum_gene = alarmesGene.copy()#Liste alarmes des genes
+    print(f'Alarmes de sum_gene = {sum_gene}, alramres de sum_client {sum_client}')
+
+    return render_template("index.html", client=client, generateur=generateur, mat = matrice, conso=conso, prod=prod, 
                                     sum_client =sum_client, sum_gene=sum_gene); 
 
 
@@ -32,6 +38,8 @@ listConso = []
 listDispo = []
 matriceFin = [[]]
 listAlarm = []
+ecartDemCons = []
+alarmesGene = []
 
 def orderGene(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
     augmentation = True
@@ -114,10 +122,17 @@ def smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
 
 
 async def getDispatch(listConso, listDispo, listeCoeff):
-    global matriceFin
+    global matriceFin, ecartDemCons
     matriceFin = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
+    
     while True:
+        listConsoCopy = listConso.copy()
         matriceFin = smartFunction(listConso, listDispo, listeCoeff,matriceFin,1 )
+        ecartDemCons = [False for i in range(len(listConso))]
+        for i in range(len(listConso)):
+            if ((sum(matriceFin[i])+1)/(listConsoCopy[i]+1)) < 0.9:
+                ecartDemCons[i] = True   
+        print(f'ecartDemCons = {ecartDemCons}')
         print(f'matrice Fin = {matriceFin}')
         await asyncio.sleep(1)
 
@@ -134,14 +149,16 @@ async def sendConsommationToGenerator(url):
     index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
     #print(f'index = {index}')
     client = Client(url=url)
+    '''
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate="/certificates-all/certificate-gene-1.der"
     )
+    '''
     async with client :
-        #print("TEst generateur connection")   
+        #print(f"TEst generateur connection et url = {url}")   
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
         #conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
@@ -182,10 +199,11 @@ async def sendConsommationToGenerator(url):
 
 class AlarmeHandler:
     url_gene = ''
-    def __init__(self, url):
+    global alarmesGene
+    def __init__(self, url):       
         self.url_gene = url
     async def datachange_notification(self, node: Node, val, data):
-        print(f'alarme = {val} depuis le gene {self.url_gene}')   
+        alarmesGene[int(self.url_gene.split('opc.tcp://server-gene')[1][:1]) - 1] = val  
 
 
 
@@ -194,13 +212,14 @@ async def retrieveConsommationFromConsummer(url):
     client = Client(url=url)
 
     index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
-
+    '''
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate="/certificates-all/certificate-conso-1.der"
     )
+    '''
     async with client:
         #print("TEst consommateur connection")              
         uri = 'http://examples.freeopcua.github.io'
@@ -223,17 +242,19 @@ async def main():
     # print("NbConso : ",NbConso)
     # print("NbGene : ",NbGene)
     taskList = []
-    global listDispo, listConso, listCoeff, matriceFin
+    global listDispo, listConso, listCoeff, matriceFin, ecartDemCons, alarmesGene
     listDispo = [0 for i in range(NbGene)]
     listConso = [0 for i in range(NbConso)]
     listCoeff = [0 for i in range(NbGene)]
+    ecartDemCons = [0 for i in range(NbConso)]
+    alarmesGene = [0 for i in range(NbGene)]
     matriceFin = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
 
     # Creation des Generateurs et consommateurs
     for i in range(NbConso):
         url_conso = 'opc.tcp://server-conso'+str(i+1)+':4840/freeopcua/server/consommateur'         
         taskList.append(retrieveConsommationFromConsummer(url_conso))
-    taskList.append(getDispatch(listDispo, listConso,listeCoeff))
+    taskList.append(getDispatch(listConso, listDispo,listCoeff))
     for i in range(NbGene):
         url_gene = 'opc.tcp://server-gene'+str(i+1)+':4840/freeopcua/server/'
         taskList.append(sendConsommationToGenerator(url_gene))
@@ -241,20 +262,38 @@ async def main():
     L = await asyncio.gather(*taskList)
 
 
-import os 
+import os
+
+def starter():
+    asyncio.run(main())
+
 
 if __name__ == '__main__':
 
-    if not os.path.isfile("/certificates-all/certificate-scada-1.der"):
+    # os.system("sleep 4")
+    
+    # if not os.path.isfile("/certificates-all/certificate-scada-1.der"):
+    '''
+    if not os.path.isfile("/private-key-scada-1.pem"):
         cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
--keyout /private-key-scada-1.pem -outform der -out /certificates-all/certificate-scada-1.der")
+-keyout /private-key-scada-1.pem -outform der -out /certificates-all/certificate-scada-1.der && echo ##### key added")
         os.system(cmd)
     else:
         print("FILE EXISTS")
+    '''
 
     port = int(os.environ.get('PORT', 5000))
+
+    # function = asyncio.run()
+    
+    os.system("sleep 4")
+    
+    p = Thread(target=starter)
+    p.start()
+
+
     clientminimalscada.run(debug=True, host='0.0.0.0', port=port,use_reloader=True)
     
-    asyncio.run(main())
+    # asyncio.run(main())
 
 

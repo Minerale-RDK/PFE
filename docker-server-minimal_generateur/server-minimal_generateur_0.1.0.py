@@ -47,25 +47,30 @@ def func(parent, value):
 async def main():
     _logger = logging.getLogger('asyncua')
 
-    # server encryption  
+    # server encryption
+    '''  
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("/certificates-all/certificate-scada-1.der", name='admin_scada')
     await cert_user_manager.add_admin("/certificates-all/certificate-capteur-1.der", name='admin_capteur')
-
+    '''
     # setup our server
     capacity  = int(sys.argv[1]) #A changer avec type centrale qui va nous donner capacity et coeff vitesse
-    server = Server(user_manager=cert_user_manager)
+    
+    server = Server()#user_manager=cert_user_manager)
+    
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/')
 
     # Security policy  
+    '''
     server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
-
+    '''
     # Load server certificate and private key.
-    # This enables endpoints with signing and encryption.   
+    # This enables endpoints with signing and encryption. 
+    '''  
     await server.load_certificate("/certificates-all/certificate-gene-1.der")
     await server.load_private_key("private-key-gene-1.pem")
-
+    '''
     ##DEBUG
     print("##DEBUG\n GENE produit {} W \n##### ".format(capacity))
 

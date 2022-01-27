@@ -9,6 +9,15 @@ services:
     restart: always
     volumes:
       - certificates-volume:/certificates-all
+
+  server-conso2:
+    build: docker-server-minimal_consommateur/.
+    image: server-conso2
+    environment:
+     - CONSO= 300
+    restart: always
+    volumes:
+      - certificates-volume:/certificates-all
     
 
   server-gene1:
@@ -39,12 +48,11 @@ services:
       - "5000:5000"
       - "2222:22"
     environment:
-     - NbConso= 1
+     - NbConso= 2
      - NbGene= 1
     restart: always
     volumes:
       - certificates-volume:/certificates-all
-
 
   client_scada_rescue:
     build: docker-client-minimal_scada_rescue/.
@@ -52,7 +60,7 @@ services:
     ports:
       - "5001:5001"
     environment:
-     - NbConso= 1
+     - NbConso= 2
      - NbGene= 1
     restart: always
     volumes:
