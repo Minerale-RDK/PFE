@@ -7,7 +7,7 @@ LABEL BuildDate="16/11/21"
 
 #We update it
 RUN apk update
-RUN apk add build-base libffi-dev libc-dev
+RUN apk add build-base libffi-dev libc-dev 
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua
@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir asyncua
 #Copy the script
 COPY . /
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl curl
 RUN mkdir /certificates-all
 
 VOLUME /certificates-all

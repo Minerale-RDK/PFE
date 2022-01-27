@@ -9,8 +9,6 @@ from tkinter import ttk
 import sys
 import subprocess
 from subprocess import call
-#from ttkthemes import ThemedTk
-
 
 # In[35]:
 

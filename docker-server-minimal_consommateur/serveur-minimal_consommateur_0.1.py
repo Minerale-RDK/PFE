@@ -1,20 +1,24 @@
 import logging
 import asyncio
-import sys
-sys.path.insert(0, "..")
+import sys,json
+import os
 
 from asyncua import ua, Server
 from asyncua.common.methods import uamethod
 
 import random
-import time
 import math
 
 from asyncua.crypto.permission_rules import SimpleRoleRuleset
 from asyncua.server.users import UserRole
 from asyncua.server.user_managers import CertificateUserManager
 
-starttime=time.time()
+# index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
+# DOCKERINFO = os.system("export DOCKERINFO=$(curl -s --unix-socket /run/docker.sock http://docker/containers/$HOSTNAME/json)")
+DOCKERINFO = os.popen("curl -s --unix-socket /run/docker.sock http://docker/containers/$HOSTNAME/json").read()
+Name = json.loads(DOCKERINFO)["Name"].split("_")[1]
+index = int(Name.split('server-conso')[1][:1])
+
 
 @uamethod
 def func(parent, value):
@@ -55,8 +59,9 @@ async def main():
 
     # Load server certificate and private key.
     # This enables endpoints with signing and encryption.   
-    await server.load_certificate("/certificates-all/certificate-conso-1.der")
-    await server.load_private_key("private-key-conso-1.pem")
+
+    await server.load_certificate(f"/certificates-all/certificate-conso-{index}.der")
+    await server.load_private_key(f"private-key-conso-{index}.pem")
     
 
     ##DEBUG
@@ -95,16 +100,14 @@ async def main():
                 cpt = 0
 
 
-import os 
-
 if __name__ == '__main__':
 
-    if not os.path.isfile("/certificates-all/certificate-conso-1.der"):
-        cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
--keyout /private-key-conso-1.pem -outform der -out /certificates-all/certificate-conso-1.der")
+    if not os.path.isfile(f"/certificates-all/certificate-conso-{index}.der"):
+        cmd = (f"openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
+-keyout /private-key-conso-{index}.pem -outform der -out /certificates-all/certificate-conso-{index}.der")
         os.system(cmd)
     else:
         print("FILE EXISTS")
+        # os.system("sleep 2")
 
-    
     asyncio.run(main(), debug=False)
