@@ -40,8 +40,10 @@ class service:
     print(" ",self.name)
     print("    build:",self.build)
     print("    image:",self.image)
-    if (self.name.find("client-scada1") != -1 or self.name == "client-scada-rescue"):
+    if (self.name.find("client-scada1") != -1):
         print('    ports:\n     - "5000:5000"\n     - "2222:22"')
+    if (self.name.find("client-scada-rescue") != -1):
+        print('    ports:\n     - "5001:5000"\n     - "2223:22"')
     if (len(self.environment)==1):
         print("    environment:\n     -",self.environment[0])
     if (len(self.environment)>1):
@@ -58,7 +60,7 @@ class service:
     print("     - '/run/docker.sock:/run/docker.sock'")
     print("     - certificates-volume:/certificates-all")
     if (self.name.find("client-captor") != -1 ):
-        print(f"     - {self.volumes}:/data")
+        print(f"     - volume1:/data")
     print("\n")
   
 
@@ -77,13 +79,10 @@ def goNext():
     tabCaptorVolumeDevice = []
     
 
-        #scroll bar
+    #scroll bar
     main_frame = Frame(window)
-    #main_frame.pack(fill=BOTH, expand=1)
     my_canva = Canvas(main_frame,bg = colorBg)
-    #my_canva.pack(side=LEFT, fill=BOTH, expand=1)
     scroll = ttk.Scrollbar(main_frame, orient=VERTICAL, command=my_canva.yview )
-    #scroll.pack(side=RIGHT, fill=Y)
     my_canva.configure(yscrollcommand=scroll.set)
     my_canva.bind('<Configure>', lambda e: my_canva.configure(scrollregion= my_canva.bbox("all")))
     frameInfo = Frame(my_canva,bg = colorBg)
@@ -218,7 +217,9 @@ def consum():
         tabService.append(scadaRescue)
 
         cmd = (f"openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config docker-client-minimal_scada/configuration_certs.cnf \
--keyout docker-client-minimal_scada/private-key-scada-{nbScada}.pem -outform der -out certificates-all/certificate-scada-{nbScada}.der")
+-keyout docker-client-minimal_scada/private-key-scada-{nbScada}.pem -outform der -out certificates-all/certificate-scada-{nbScada}.der &&\
+openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config docker-client-minimal_scada_rescue/configuration_certs.cnf \
+-keyout docker-client-minimal_scada_rescue/private-key-scada-rescue-{nbScada}.pem -outform der -out certificates-all/certificate-scada-rescue-{nbScada}.der")
         os.system(cmd)
 
     tabVolume.append(Volume("certificates-volume","local","none","bind",'"certificates-all"'))
@@ -228,13 +229,13 @@ def consum():
 
 def window2():
     close_window()
-    subprocess.call("docker-compose up --build", shell= True)
-    window2 = Tk()
-    window2.geometry("720x480")
-    window2.title("Docker-Compose Generator2")
-    label = Label(window2, text='Docker-Compose Generator', bg = colorBg, foreground='#777', pady = 15, font = ("Verdana",14)).grid(row=0, column=1)
-    window2['bg']= colorBg
-    window2.mainloop()
+    # subprocess.call("docker-compose up --build", shell= True)
+    # window2 = Tk()
+    # window2.geometry("720x480")
+    # window2.title("Docker-Compose Generator2")
+    # label = Label(window2, text='Docker-Compose Generator', bg = colorBg, foreground='#777', pady = 15, font = ("Verdana",14)).grid(row=0, column=1)
+    # window2['bg']= colorBg
+    # window2.mainloop()
 
 
 
@@ -273,11 +274,8 @@ colorButton = "#F4FEFE"
 
 #init
 window = Tk()
-#window = ThemedTk(theme='adapta')
-#print(root.get_themes())
 
 window.geometry("720x480")
-#window.resizable(height=True,width=True)
 window.title("Docker-Compose Generator")
 label = Label(window, text='Docker-Compose Generator', bg = colorBg, foreground='#777', pady = 15, font = ("Verdana",14)).grid(row=0, column=1)
 window['bg']= colorBg

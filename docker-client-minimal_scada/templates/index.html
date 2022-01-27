@@ -37,7 +37,11 @@
                         {%if sum_gene[g-1] == 1 %}
                             <div id="d{{g}}" class ="gene" style="background:red;">
                                 <p>Generateur{{g}} <br> {{ prod[g-1] }} W</p>
+<<<<<<< HEAD
                                 <img src="{{url_for('static', filename='EU_flag_square.PNG')}}" style="opacity: 1;" />
+=======
+                                <img src="{{url_for('static', filename='Flag_Europe.png')}}" style="opacity: 1;" />
+>>>>>>> 98d968727ed992d67dfbcd2e59a82e9dfd5ac8b3
                             </div>   
                         {%elif sum_gene[g-1] == -1 %}
                             <div id="d{{g}}" class ="gene" style="background:rgb(253, 155, 155);"> 

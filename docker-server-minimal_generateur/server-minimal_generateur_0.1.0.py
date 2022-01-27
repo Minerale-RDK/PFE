@@ -1,7 +1,6 @@
 import logging
 import asyncio
 import sys,os,json
-sys.path.insert(0, "..")
 
 from asyncua import ua, Server
 from asyncua.common.methods import uamethod
@@ -53,6 +52,7 @@ async def main():
     '''
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("/certificates-all/certificate-scada-1.der", name='admin_scada')
+    await cert_user_manager.add_admin("/certificates-all/certificate-scada-rescue-1.der", name='admin_scada_rescue')
     await cert_user_manager.add_admin("/certificates-all/certificate-capteur-1.der", name='admin_capteur')
     '''
 
@@ -82,7 +82,6 @@ async def main():
 
     # populating our address space
     # server.nodes, contains links to very common nodes like objects and root
-
     objectCapaCoeff = await server.nodes.objects.add_object(idx, 'Capa&Coeff')
     capa = await objectCapaCoeff.add_variable(idx, 'capa', capacity)
     coeff = await objectCapaCoeff.add_variable(idx, 'coeff', coefficient)#Coeff en dur ici

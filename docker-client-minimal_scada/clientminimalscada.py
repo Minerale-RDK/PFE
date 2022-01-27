@@ -1,14 +1,11 @@
 import asyncio
-import sys
+import sys,os
 
 import logging
 from asyncua import Client, Node, ua
 from threading import Thread
 from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
 from flask import Flask, render_template
-import os
-
-from multiprocessing import Process
 
 clientminimalscada = Flask(__name__)
 
@@ -161,10 +158,8 @@ async def sendConsommationToGenerator(url):
     '''
     
     async with client :
-        #print(f"TEst generateur connection et url = {url}")   
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
-        #conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
        
         alarmeHandler = AlarmeHandler(url)
         # We create a Client Subscription.
@@ -189,15 +184,11 @@ async def sendConsommationToGenerator(url):
         while True:
             consoTotale = 0
             await asyncio.sleep(1.5)
-            # await asyncio.sleep(2)
-            # await asyncio.sleep(4)
             
             for i in range(len(listConso)):
                 consoTotale += matriceFin[i][int(index)]
                 print(f"Sending {consoTotale} W of consommation to {url}")
                 await conso.write_value(consoTotale)
-        
-        #return client
         
 
 class AlarmeHandler:
@@ -225,15 +216,12 @@ async def retrieveConsommationFromConsummer(url):
     )
     '''
 
-    async with client:
-        #print("TEst consommateur connection")              
+    async with client:           
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
         consommationConsommateurObject = await client.nodes.root.get_child(["0:Objects", f"{idx}:Conso", f"{idx}:consommation"])
-        #print(client.__str__())
         while True:
             await asyncio.sleep(1.5)
-            # await asyncio.sleep(4.05)
             listConso[index] = await consommationConsommateurObject.read_value()
             print(f'consommation = {listConso[index]} à l\'index {index}')
     
@@ -264,8 +252,6 @@ async def main():
     L = await asyncio.gather(*taskList)
 
 
-import os
-
 def starter():
     print("LAUCHING")
     asyncio.run(main())
@@ -280,6 +266,6 @@ if __name__ == '__main__':
     p.start()
 
 
-    clientminimalscada.run(debug=True, host='0.0.0.0', port=port,use_reloader=True)
+    clientminimalscada.run(debug=True, host='0.0.0.0', port=port)
 
 

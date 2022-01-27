@@ -1,4 +1,3 @@
-quart==0.16.2
 click==8.0.3
 colorama==0.4.4
 flask[async]==2.0.2
