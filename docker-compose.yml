@@ -11,7 +11,6 @@ services:
      - '/run/docker.sock:/run/docker.sock'
      - certificates-volume:/certificates-all
 
-
   server-gene1:
     build: docker-server-minimal_generateur/.
     image: server-gene1
@@ -49,7 +48,6 @@ services:
     volumes:
      - '/run/docker.sock:/run/docker.sock'
      - certificates-volume:/certificates-all
-
 
   client-scada-rescue:
     build: docker-client-minimal_scada_rescue/.

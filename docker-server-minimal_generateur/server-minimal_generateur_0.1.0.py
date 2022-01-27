@@ -49,7 +49,7 @@ def func(parent, value):
 async def main():
     _logger = logging.getLogger('asyncua')
 
-    # server encryption  
+    # server encryption
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("/certificates-all/certificate-scada-1.der", name='admin_scada')
     await cert_user_manager.add_admin("/certificates-all/certificate-capteur-1.der", name='admin_capteur')
@@ -58,6 +58,7 @@ async def main():
     capacity  = int(sys.argv[1])
     coefficient  = float(sys.argv[2])
     server = Server(user_manager=cert_user_manager)
+
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/')
 

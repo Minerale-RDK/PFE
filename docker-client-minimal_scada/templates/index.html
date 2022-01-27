@@ -1,7 +1,7 @@
 <html>
     <head>
         <!-- <meta charset="UTF-8"> -->
-        <meta http-equiv="refresh" content="10" >
+        <meta http-equiv="refresh" content="0.5" >
         <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
         <title>FlaskBlog</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -45,7 +45,7 @@
                     </div>
                     <div class="row">
                     {%for i in range(1,client+1)%}
-                        {%if sum_client[i-1] == conso[i-1] %}
+                        {%if sum_client[i-1] == True %}
                         <div id="div{{i}}" class="client" style="background:orangered; "> <p>Client{{i}} <br> {{ conso[i-1] }} W</p> </div>
                         {%else%}
                         <div id="div{{i}}" class="client"> <p>Client{{i}} <br> {{ conso[i-1] }} W</p> </div>
