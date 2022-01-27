@@ -51,6 +51,7 @@ async def main():
     # server encryption
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("/certificates-all/certificate-scada-1.der", name='admin_scada')
+    await cert_user_manager.add_admin("/certificates-all/certificate-scada-rescue-1.der", name='admin_scada_rescue')
     await cert_user_manager.add_admin("/certificates-all/certificate-capteur-1.der", name='admin_capteur')
 
     # setup our server

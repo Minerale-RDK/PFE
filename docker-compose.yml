@@ -5,7 +5,7 @@ services:
     build: docker-server-minimal_consommateur/.
     image: server-conso1
     environment:
-     - CONSO=300
+     - CONSO=200
     restart: always
     volumes:
      - '/run/docker.sock:/run/docker.sock'
@@ -16,8 +16,8 @@ services:
     build: docker-server-minimal_generateur/.
     image: server-gene1
     environment:
-     - GENE=400
-     - COEFF=0.1
+     - GENE=300
+     - COEFF=0.12
     restart: always
     volumes:
      - '/run/docker.sock:/run/docker.sock'
@@ -54,6 +54,9 @@ services:
   client-scada-rescue:
     build: docker-client-minimal_scada_rescue/.
     image: client-scada-rescue
+    ports:
+     - "5001:5000"
+     - "2223:22"
     environment:
      - NbConso=1
      - NbGene=1
