@@ -19,11 +19,6 @@ def home():
     global matriceFin, alarmesGene, ecartDemCons
     
     matrice = matriceFin.copy()
-<<<<<<< HEAD
-
-    return render_template("index.html", client=client, generateur=3, mat = matrice, conso=conso, prod=prod, 
-                                    sum_client =sum_client, sum_gene=sum_gene);
-=======
     print(f'Matrice == {matrice}')
     generateur = len(matrice[0])
     conso = listConso.copy()
@@ -35,7 +30,6 @@ def home():
 
     return render_template("index.html", client=client, generateur=generateur, mat = matrice, conso=conso, prod=prod, 
                                     sum_client =sum_client, sum_gene=sum_gene); 
->>>>>>> 73c13eae5caf9386ecdb450f87c92978e460dfee
 
 
 consommationTotale = 0
@@ -133,12 +127,6 @@ async def getDispatch(listConso, listDispo, listeCoeff):
     matriceFin = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
     
     while True:
-<<<<<<< HEAD
-        # matriceFin = smartFunction(listConso, listDispo, listeCoeff,matriceFin,1 )
-        matriceFin = orderGene(listConso, listDispo, listeCoeff,matriceFin,1)
-        print(f'matrice Fin = {matriceFin.copy()}')
-        await asyncio.sleep(1.5)
-=======
         listConsoCopy = listConso.copy()
         matriceFin = smartFunction(listConso, listDispo, listeCoeff,matriceFin,1 )
         ecartDemCons = [False for i in range(len(listConso))]
@@ -148,7 +136,6 @@ async def getDispatch(listConso, listDispo, listeCoeff):
         print(f'ecartDemCons = {ecartDemCons}')
         print(f'matrice Fin = {matriceFin}')
         await asyncio.sleep(1)
->>>>>>> 73c13eae5caf9386ecdb450f87c92978e460dfee
 
 
 # variables certificat chiffrement
@@ -162,14 +149,14 @@ async def sendConsommationToGenerator(url):
 
     index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
     client = Client(url=url)
-    '''
+
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate=f"/certificates-all/certificate-gene-{index+1}.der"
     )
-    '''
+    
     async with client :
         #print(f"TEst generateur connection et url = {url}")   
         uri = 'http://examples.freeopcua.github.io'
@@ -225,14 +212,14 @@ async def retrieveConsommationFromConsummer(url):
     client = Client(url=url)
 
     index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
-    '''
+
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate=f"/certificates-all/certificate-conso-{index+1}.der"
     )
-    '''
+
     async with client:
         #print("TEst consommateur connection")              
         uri = 'http://examples.freeopcua.github.io'
@@ -281,22 +268,9 @@ def starter():
 
 if __name__ == '__main__':
 
-    # if not os.path.isfile("/certificates-all/certificate-scada-1.der"):
-    '''
-    if not os.path.isfile("/private-key-scada-1.pem"):
-        cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
--keyout /private-key-scada-1.pem -outform der -out /certificates-all/certificate-scada-1.der && echo ##### key added")
-        os.system(cmd)
-    else:
-        print("FILE EXISTS")
-    '''
-
+    os.system("sleep 3")
     port = int(os.environ.get('PORT', 5000))
 
-    # function = asyncio.run()
-    
-    os.system("sleep 4")
-    
     p = Thread(target=starter)
     p.start()
 

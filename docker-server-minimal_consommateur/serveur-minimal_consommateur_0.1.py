@@ -44,10 +44,10 @@ async def main():
     _logger = logging.getLogger('asyncua')
 
     # server encryption  
-    '''
+
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("certificates-all/certificate-scada-1.der", name='admin_scada')
-    '''
+
     # setup our server
     consommation  = int(sys.argv[1])
     
@@ -57,9 +57,8 @@ async def main():
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/consommateur')
 
     # Security policy  
-    '''
     server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
-    '''
+
 
     # Load server certificate and private key.
     # This enables endpoints with signing and encryption.   

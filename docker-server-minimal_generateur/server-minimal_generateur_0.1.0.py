@@ -37,8 +37,7 @@ async def Production(consommation, capacity, coef_vitesse, production):
 
     # f1 - f0 = (Production-Consommation) / Capacité Totale
     f1 = (productionAct - consommation)/capacity + 50
-    #print(f"freq = {f1} productionAct={productionAct} consommation = {consommation} capacité = {capacity}")
-    
+
     return f1
 
 

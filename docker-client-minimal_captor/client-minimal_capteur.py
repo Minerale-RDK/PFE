@@ -27,14 +27,14 @@ async def RealConsoSendByTheGenerator(url):
     global data
     #print("in RealCOnso : ", url)
     client = Client(url=url)
-    '''
+
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate="/certificates-all/certificate-gene-1.der"
     )
-    '''
+
     async with client:
         _logger.info('Children of root are: %r', await client.nodes.root.get_children())
         uri = 'http://examples.freeopcua.github.io'
