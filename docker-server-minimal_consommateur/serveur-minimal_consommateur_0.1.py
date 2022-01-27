@@ -32,7 +32,7 @@ def Consumption(cpt,consumption):
         consommation = random.uniform(0.75*consumption,1.04*consumption)
     # Soir
     elif (cpt in range (19,24)):
-        consommation = 500#random.uniform(1.02*consumption,1.34*consumption)
+        consommation = random.uniform(1.02*consumption,1.34*consumption)
     return int(consommation)
 
 

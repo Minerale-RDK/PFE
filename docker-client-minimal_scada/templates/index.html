@@ -35,20 +35,32 @@
                     <div class="row">
                     {% for g in range(1, generateur+1) %}
                         {%if sum_gene[g-1] == 1 %}
-                            <div id="d{{g}}" class ="gene" style="background:red;"> <p>Generateur{{g}} <br> {{ prod[g-1] }} W</p> </div>
+                            <div id="d{{g}}" class ="gene" style="background:red;">
+                                <p>Generateur{{g}} <br> {{ prod[g-1] }} W</p>
+                                <img src="{{url_for('static', filename='EU_flag_square.png')}}" style="opacity: 1;" />
+                            </div>   
                         {%elif sum_gene[g-1] == -1 %}
-                            <div id="d{{g}}" class ="gene" style="background:rgb(253, 155, 155);"> <p>Generateur{{g}} <br> {{ prod[g-1] }} W</p> </div>
+                            <div id="d{{g}}" class ="gene" style="background:rgb(253, 155, 155);"> 
+                                <p>Generateur{{g}} <br> {{ prod[g-1] }} W</p> 
+                            </div>
                         {%else%}
-                            <div id="d{{g}}" class ="gene"> <p>Generateur{{g}} <br> {{ prod[g-1] }} W</p> </div>
+                            <div id="d{{g}}" class ="gene"> 
+                                <p>Generateur{{g}} <br> {{ prod[g-1] }} W</p> 
+                            </div>
                         {% endif %}
                     {%endfor%}
                     </div>
                     <div class="row">
                     {%for i in range(1,client+1)%}
                         {%if sum_client[i-1] == True %}
-                        <div id="div{{i}}" class="client" style="background:orangered; "> <p>Client{{i}} <br> {{ conso[i-1] }} W</p> </div>
+                        <div id="div{{i}}" class="client" style="background:orangered; "> 
+                            <p>Client{{i}} <br> {{ conso[i-1] }} W</p> 
+                            <img src="{{url_for('static', filename='EU_flag_square.png')}}" style="opacity: 1;" />
+                        </div>
                         {%else%}
-                        <div id="div{{i}}" class="client"> <p>Client{{i}} <br> {{ conso[i-1] }} W</p> </div>
+                        <div id="div{{i}}" class="client"> 
+                            <p>Client{{i}} <br> {{ conso[i-1] }} W</p> 
+                        </div>
                         {% endif %}
                     {%endfor%}
                     </div> 
