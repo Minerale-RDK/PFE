@@ -22,7 +22,6 @@ private_key = f"private-key-capteur-{cert_idx}.pem"
 async def RealConsoSendByTheGenerator(url):
     global rConsommation
     global data
-    #print("in RealCOnso : ", url)
     client = Client(url=url)
 
     await client.set_security(

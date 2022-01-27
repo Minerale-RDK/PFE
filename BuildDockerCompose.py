@@ -60,7 +60,7 @@ class service:
     print("     - '/run/docker.sock:/run/docker.sock'")
     print("     - certificates-volume:/certificates-all")
     if (self.name.find("client-captor") != -1 ):
-        print(f"     - {self.volumes}:/data")
+        print(f"     - volume1:/data")
     print("\n")
   
 
@@ -79,13 +79,10 @@ def goNext():
     tabCaptorVolumeDevice = []
     
 
-        #scroll bar
+    #scroll bar
     main_frame = Frame(window)
-    #main_frame.pack(fill=BOTH, expand=1)
     my_canva = Canvas(main_frame,bg = colorBg)
-    #my_canva.pack(side=LEFT, fill=BOTH, expand=1)
     scroll = ttk.Scrollbar(main_frame, orient=VERTICAL, command=my_canva.yview )
-    #scroll.pack(side=RIGHT, fill=Y)
     my_canva.configure(yscrollcommand=scroll.set)
     my_canva.bind('<Configure>', lambda e: my_canva.configure(scrollregion= my_canva.bbox("all")))
     frameInfo = Frame(my_canva,bg = colorBg)
@@ -232,7 +229,7 @@ openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config docker-clien
 
 def window2():
     close_window()
-    subprocess.call("docker-compose up --build", shell= True)
+    # subprocess.call("docker-compose up --build", shell= True)
     # window2 = Tk()
     # window2.geometry("720x480")
     # window2.title("Docker-Compose Generator2")
@@ -277,11 +274,8 @@ colorButton = "#F4FEFE"
 
 #init
 window = Tk()
-#window = ThemedTk(theme='adapta')
-#print(root.get_themes())
 
 window.geometry("720x480")
-#window.resizable(height=True,width=True)
 window.title("Docker-Compose Generator")
 label = Label(window, text='Docker-Compose Generator', bg = colorBg, foreground='#777', pady = 15, font = ("Verdana",14)).grid(row=0, column=1)
 window['bg']= colorBg

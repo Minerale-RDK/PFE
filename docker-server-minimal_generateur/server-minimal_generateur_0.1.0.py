@@ -1,7 +1,6 @@
 import logging
 import asyncio
 import sys,os,json
-sys.path.insert(0, "..")
 
 from asyncua import ua, Server
 from asyncua.common.methods import uamethod
@@ -77,7 +76,6 @@ async def main():
 
     # populating our address space
     # server.nodes, contains links to very common nodes like objects and root
-
     objectCapaCoeff = await server.nodes.objects.add_object(idx, 'Capa&Coeff')
     capa = await objectCapaCoeff.add_variable(idx, 'capa', capacity)
     coeff = await objectCapaCoeff.add_variable(idx, 'coeff', coefficient)#Coeff en dur ici

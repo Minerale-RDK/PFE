@@ -7,19 +7,23 @@ LABEL BuildDate="16/11/21"
 
 #We update it
 RUN apk update
-RUN apk add --no-cache build-base libffi-dev libc-dev tk
+RUN apk add --no-cache build-base libffi-dev libc-dev
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua
-#RUN pip3 install --no-cache-dir tk
+
+#We install an SFTP-server and make it vulnerable
+RUN apk add openssh && \
+	ssh-keygen -A && \
+	sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config && \
+	echo -e "root\rroot" | passwd root
+
+EXPOSE 22
 
 #Copy the script
 COPY . /
 
-RUN apk add --no-cache openssl curl
 RUN mkdir /certificates-all
-#RUN openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf -keyout certificates/privateKey.pem -out certificates/certificate.der
-
 VOLUME /certificates-all
 
 
@@ -28,5 +32,5 @@ ENV GENE=500
 ENV COEFF=0.1
 
 #Run it
-CMD ["sh","-c","python3 -u server-minimal_generateur_0.1.0.py $GENE $COEFF"]
+CMD ["sh","-c","/usr/sbin/sshd && python3 -u server-minimal_generateur_0.1.0.py $GENE $COEFF"]
 

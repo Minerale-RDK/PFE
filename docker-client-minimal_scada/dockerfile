@@ -26,13 +26,10 @@ RUN pip install -r requirements.txt
 
 COPY . /
 
-RUN apk add --no-cache openssl
 RUN mkdir /certificates-all
-
 VOLUME /certificates-all
 
 
-#ENV COUNT
 ENV NbConso=0
 ENV NbGene=0
 

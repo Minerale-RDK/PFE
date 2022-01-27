@@ -1,7 +1,6 @@
 import logging
 import asyncio
-import sys,json
-import os
+import sys,os,json
 
 from asyncua import ua, Server
 from asyncua.common.methods import uamethod
@@ -13,8 +12,6 @@ from asyncua.crypto.permission_rules import SimpleRoleRuleset
 from asyncua.server.users import UserRole
 from asyncua.server.user_managers import CertificateUserManager
 
-# index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
-# DOCKERINFO = os.system("export DOCKERINFO=$(curl -s --unix-socket /run/docker.sock http://docker/containers/$HOSTNAME/json)")
 DOCKERINFO = os.popen("curl -s --unix-socket /run/docker.sock http://docker/containers/$HOSTNAME/json").read()
 Name = json.loads(DOCKERINFO)["Name"].split("_")[1]
 index = int(Name.split('server-conso')[1][:1])
@@ -44,7 +41,6 @@ async def main():
     _logger = logging.getLogger('asyncua')
 
     # server encryption  
-
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("certificates-all/certificate-scada-1.der", name='admin_scada')
     await cert_user_manager.add_admin("/certificates-all/certificate-scada-rescue-1.der", name='admin_scada_rescue')
@@ -53,7 +49,7 @@ async def main():
     # setup our server
     consommation  = int(sys.argv[1])
     
-    server = Server()#user_manager=cert_user_manager)
+    server = Server(user_manager=cert_user_manager)
     
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/consommateur')
@@ -68,10 +64,6 @@ async def main():
     await server.load_private_key(f"private-key-conso-{index}.pem")
     
 
-    ##DEBUG
-    print("##DEBUG\n CONSO consomme {} W \n##### ".format(consommation))
-
-
     # setup our own namespace, not really necessary but should as spec
     uri = 'http://examples.freeopcua.github.io'
     idx = await server.register_namespace(uri)
@@ -80,26 +72,20 @@ async def main():
     # server.nodes, contains links to very common nodes like objects and root
     objectConso = await server.nodes.objects.add_object(idx, 'Conso')
     consommation1 = await objectConso.add_variable(idx, 'consommation', 0)
+    
     # Set MyVariable to be writable by clients
     await consommation1.set_writable()
     await server.nodes.objects.add_method(ua.NodeId('ServerMethod', 2), ua.QualifiedName('ServerMethod', 2), func, [ua.VariantType.Int64], [ua.VariantType.Int64])
     print('Starting server!')
     cpt = 0
-    #j = 0
     async with server:
         while True:
-            # await asyncio.sleep(1)
-            #await asyncio.sleep(2)
-            await asyncio.sleep(4)
+            await asyncio.sleep(1)
             consommationHoraire = Consumption(cpt,consommation)
             print(f'consommationHoraire = {consommationHoraire}')
-            #consommation+=1
-            #print("consommation cote consommateur : {} à {}h ".format(consommationHoraire, cpt))
             await consommation1.write_value(consommationHoraire)
-            #print(consommation)
             cpt+=1
             if (cpt == 24):
-                #j += 1
                 print ('Nouveau Jour')
                 cpt = 0
 
