@@ -139,9 +139,11 @@ async def getDispatch(listConso, listDispo, listeCoeff):
 
 
 # variables certificat chiffrement
+'''
 cert_idx = 1
 cert = f"/certificates-all/certificate-scada-1.der"
 private_key = f"private-key-scada-1.pem"
+'''
 
 async def sendConsommationToGenerator(url):
     global consommationTotale
@@ -149,13 +151,14 @@ async def sendConsommationToGenerator(url):
 
     index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
     client = Client(url=url)
-
+    '''
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate=f"/certificates-all/certificate-gene-{index+1}.der"
     )
+    '''
     
     async with client :
         #print(f"TEst generateur connection et url = {url}")   
@@ -213,12 +216,14 @@ async def retrieveConsommationFromConsummer(url):
 
     index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
 
+    '''
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate=f"/certificates-all/certificate-conso-{index+1}.der"
     )
+    '''
 
     async with client:
         #print("TEst consommateur connection")              

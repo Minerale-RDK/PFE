@@ -15,10 +15,11 @@ from asyncua.server.user_managers import CertificateUserManager
 
 # index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
 # DOCKERINFO = os.system("export DOCKERINFO=$(curl -s --unix-socket /run/docker.sock http://docker/containers/$HOSTNAME/json)")
+'''
 DOCKERINFO = os.popen("curl -s --unix-socket /run/docker.sock http://docker/containers/$HOSTNAME/json").read()
 Name = json.loads(DOCKERINFO)["Name"].split("_")[1]
 index = int(Name.split('server-conso')[1][:1])
-
+'''
 
 @uamethod
 def func(parent, value):
@@ -44,10 +45,10 @@ async def main():
     _logger = logging.getLogger('asyncua')
 
     # server encryption  
-
+    '''
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("certificates-all/certificate-scada-1.der", name='admin_scada')
-
+    '''
     # setup our server
     consommation  = int(sys.argv[1])
     
@@ -56,16 +57,17 @@ async def main():
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/consommateur')
 
-    # Security policy  
+    # Security policy
+    '''
     server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
-
+    '''
 
     # Load server certificate and private key.
     # This enables endpoints with signing and encryption.   
-
+    '''
     await server.load_certificate(f"/certificates-all/certificate-conso-{index}.der")
     await server.load_private_key(f"private-key-conso-{index}.pem")
-    
+    '''
 
     ##DEBUG
     print("##DEBUG\n CONSO consomme {} W \n##### ".format(consommation))

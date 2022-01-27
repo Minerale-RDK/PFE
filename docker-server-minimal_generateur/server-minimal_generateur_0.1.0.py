@@ -13,10 +13,11 @@ from asyncua.crypto.permission_rules import SimpleRoleRuleset
 from asyncua.server.users import UserRole
 from asyncua.server.user_managers import CertificateUserManager
 
+'''
 DOCKERINFO = os.popen("curl -s --unix-socket /run/docker.sock http://docker/containers/$HOSTNAME/json").read()
 Name = json.loads(DOCKERINFO)["Name"].split("_")[1]
 index = int(Name.split('server-gene')[1][:1])
-
+'''
 
 async def Production(consommation, capacity, coef_vitesse, production):
 
@@ -49,26 +50,31 @@ async def main():
     _logger = logging.getLogger('asyncua')
 
     # server encryption
+    '''
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("/certificates-all/certificate-scada-1.der", name='admin_scada')
     await cert_user_manager.add_admin("/certificates-all/certificate-capteur-1.der", name='admin_capteur')
+    '''
 
     # setup our server
     capacity  = int(sys.argv[1])
     coefficient  = float(sys.argv[2])
-    server = Server(user_manager=cert_user_manager)
+    server = Server() #(user_manager=cert_user_manager)
 
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/')
 
     # Security policy  
+    '''
     server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
+    '''
 
     # Load server certificate and private key.
-    # This enables endpoints with signing and encryption.   
+    # This enables endpoints with signing and encryption.
+    '''   
     await server.load_certificate(f"/certificates-all/certificate-gene-{index}.der")
     await server.load_private_key(f"private-key-gene-{index}.pem")
-
+    '''
 
     # setup our own namespace, not really necessary but should as spec
     uri = 'http://examples.freeopcua.github.io'
