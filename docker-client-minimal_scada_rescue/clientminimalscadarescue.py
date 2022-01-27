@@ -293,5 +293,5 @@ if __name__ == '__main__':
     p.start()
 
 
-    clientminimalscadarescue.run(debug=True, host='0.0.0.0', port=port,use_reloader=True)
+    clientminimalscadarescue.run(debug=True, host='0.0.0.0', port=port)
 

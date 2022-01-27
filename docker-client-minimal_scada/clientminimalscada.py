@@ -261,6 +261,6 @@ if __name__ == '__main__':
     p.start()
 
 
-    clientminimalscada.run(debug=True, host='0.0.0.0', port=port,use_reloader=True)
+    clientminimalscada.run(debug=True, host='0.0.0.0', port=port)
 
 

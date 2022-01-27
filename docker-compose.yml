@@ -5,7 +5,18 @@ services:
     build: docker-server-minimal_consommateur/.
     image: server-conso1
     environment:
-     - CONSO=200
+     - CONSO=300
+    restart: always
+    volumes:
+     - '/run/docker.sock:/run/docker.sock'
+     - certificates-volume:/certificates-all
+
+
+  server-conso2:
+    build: docker-server-minimal_consommateur/.
+    image: server-conso2
+    environment:
+     - CONSO=500
     restart: always
     volumes:
      - '/run/docker.sock:/run/docker.sock'
@@ -16,7 +27,7 @@ services:
     build: docker-server-minimal_generateur/.
     image: server-gene1
     environment:
-     - GENE=300
+     - GENE=1000
      - COEFF=0.12
     restart: always
     volumes:
@@ -43,7 +54,7 @@ services:
      - "5000:5000"
      - "2222:22"
     environment:
-     - NbConso=1
+     - NbConso=2
      - NbGene=1
     restart: always
     volumes:
@@ -58,7 +69,7 @@ services:
      - "5001:5000"
      - "2223:22"
     environment:
-     - NbConso=1
+     - NbConso=2
      - NbGene=1
     restart: always
     volumes:
