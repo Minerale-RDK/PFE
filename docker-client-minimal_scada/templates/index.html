@@ -1,105 +1,135 @@
 <html>
-    <head>
-        <!-- <meta charset="UTF-8"> -->
-        <meta http-equiv="refresh" content="0.5" >
-        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
-        <title>FlaskBlog</title>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-        <script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.1.1/math.js></script>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    </head>
+<head>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
+    <title>FlaskBlog</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.1.1/math.js></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
 
-    <body>
-        <div class="container">
-            <h3 style='margin-bottom: 40px; margin-top: 50px;'>SCADA</h3>
-            <div class="row">
-                <div id="legende" class="col-sm-3">
-                    LEGENDE <br> <br>
+<body>
+    <div class="container">
+        <h3>SCADA</h3>
+        <div class="row">
+            <div id="legende" class="col-sm-3">
+                LEGENDE <br> <br>
+
+                <p style="display:inline-block;">Client : </p>
+                <div style="background: grey; margin-top:3px; margin-left: 5px; border-radius: 100%; width: 25px; height: 25px; display:inline-block;">
+                </div> <br>
+                <p style="display:inline-block;">Client non satisfait : </p>
+                <div
+                    style="background: orangered; margin-top:3px; margin-left: 5px; border-radius: 100%; width: 25px; height: 25px; display:inline-block;">
+                </div> <br>
+
+                <p style="display:inline-block;">Generateur : </p>
+                <div
+                    style="background: black; margin-top:3px; margin-left: 5px; width: 25px; height: 25px; display:inline-block; border-radius: 5px;">
+                </div> <br>
+                <p style="display:inline-block;">Augmentation de fréquence : </p>
+                <div
+                    style="background: red; margin-top:3px; margin-left: 5px; width: 25px; height: 25px; display:inline-block; border-radius: 5px;">
+                </div> <br>
+                <p style="display:inline-block;">Chute de fréquence : </p>
+                <div
+                    style="background: blue; margin-top:3px; margin-left: 5px; width: 25px; height: 25px; display:inline-block; border-radius: 5px;">
+                </div> <br>
+
+                <p style="display:inline-block;">Distribution d'electricite : </p>
+                <div
+                    style="border-width: 1px; height: 1px;  margin-left: 5px; border-style: solid;display:inline-block;">
+                    93W</div>
+                <!-- <div style="width:3px; height :1px; display:inline-block;"> 91 W</div> <p style="display:inline-block;">: Distribution(en Watt)</p></div>  -->
+            </div><!--  END LEGENDE -->
+            <div class="col-sm-1"></div>
+            <div id="schema" class="col-sm-8">
+                SCHEMA
+                <div class="row" id=gene>
                     
-                    <p style="display:inline-block;">Client : </p> <div style="background: grey; margin-top:3px; margin-left: 5px; border-radius: 100%; width: 25px; height: 25px; display:inline-block;"></div>   <br>
-                    <p style="display:inline-block;">Client non satisfait : </p> <div style="background: orangered; margin-top:3px; margin-left: 5px; border-radius: 100%; width: 25px; height: 25px; display:inline-block;"></div>   <br>
+                </div>
+                <div class="row" id="clients">
+             
+                    
+                </div>
 
-                    <p style="display:inline-block;">Generateur : </p><div style="background: black; margin-top:3px; margin-left: 5px; width: 25px; height: 25px; display:inline-block; border-radius: 5px;"></div>   <br>
-                    <p style="display:inline-block;">Augmentation de fréquence : </p> <div style="background: red; margin-top:3px; margin-left: 5px; width: 25px; height: 25px; display:inline-block; border-radius: 5px;"></div>   <br>
-                    <p style="display:inline-block;">Chute de fréquence : </p> <div style="background: rgb(253, 155, 155); margin-top:3px; margin-left: 5px; width: 25px; height: 25px; display:inline-block; border-radius: 5px;"></div>   <br>
+            </div> <!-- END SCHEMA -->
+        </div>
+    </div> <!-- END CONTAINER-->
+</body>
 
-                    <p style="display:inline-block;">Distribution d'electricite : </p><div style="border-width: 1px; height: 1px;  margin-left: 5px; border-style: solid;display:inline-block;"> 93W</div> 
-                    <!-- <div style="width:3px; height :1px; display:inline-block;"> 91 W</div> <p style="display:inline-block;">: Distribution(en Watt)</p></div>  -->
-                </div><!--  END LEGENDE -->
-                <div class="col-sm-1"></div>
-                <div id ="schema" class="col-sm-8">
-                    <!--SCHEMA-->
-                    <div class="row">
-                    {% for g in range(1, generateur+1) %}
-                        {%if sum_gene[g-1] == 1 %}
-                            <div id="d{{g}}" class ="gene" style="background:red;">
-                                <p>Generateur{{g}} <br> {{ prod[g-1] }} W</p>
-                                <img src="{{url_for('static', filename='Flag_Europe.png')}}" style="opacity: 1;" />
-                            </div>   
-                        {%elif sum_gene[g-1] == -1 %}
-                            <div id="d{{g}}" class ="gene" style="background:rgb(253, 155, 155);"> 
-                                <p>Generateur{{g}} <br> {{ prod[g-1] }} W</p> 
-                            </div>
-                        {%else%}
-                            <div id="d{{g}}" class ="gene"> 
-                                <p>Generateur{{g}} <br> {{ prod[g-1] }} W</p> 
-                            </div>
-                        {% endif %}
-                    {%endfor%}
-                    </div>
-                    <div class="row">
-                    {%for i in range(1,client+1)%}
-                        {%if sum_client[i-1] == True %}
-                        <div id="div{{i}}" class="client" style="background:orangered; "> 
-                            <p>Client{{i}} <br> {{ conso[i-1] }} W</p> 
-                            <img src="{{url_for('static', filename='Flag_Europe.png')}}" style="opacity: 1;" />
-                        </div>
-                        {%else%}
-                        <div id="div{{i}}" class="client"> 
-                            <p>Client{{i}} <br> {{ conso[i-1] }} W</p> 
-                        </div>
-                        {% endif %}
-                    {%endfor%}
-                    </div> 
-                </div> <!-- END SCHEMA -->
-            </div>
-         </div> <!-- END CONTAINER-->
-    </body>
 
-    <script>
-          
-        function connect(div1, div2, color, thickness, opac, valeur) {
-            var off1 = getOffset(div1);
-            var off2 = getOffset(div2);
-            // bottom right
-            var x1 = off1.left + off1.width/2;
-            var y1 = off1.top 
-         // top 3igh margin-left: 5px;t
-            var x2 = off2.left + off2.width/2 ;
-            var y2 = off2.top + off2.height;
-            // distance
-            var length = Math.sqrt(((x2-x1) * (x2-x1)) + ((y2-y1) * (y2-y1)));
-            // center
-            var cx = ((x1 + x2) / 2) - (length / 2);
-            var cy = ((y1 + y2) / 2) - (thickness / 2);
-            // angle
-            var angle = Math.atan2((y1-y2),(x1-x2))*(180/Math.PI);
-            
-            var angle2 = -angle;
-            // make hr
-            var htmlLine = "<div class='ligne' style='padding:0px; margin:0px; height:" + thickness + "px; background-color:" + color + "; opacity: " + opac + "; line-height:1px; position:absolute; left:" + cx + "px; top: "+ cy + "px; width:" + length + "px; -moz-transform:rotate(" + angle + "deg); -webkit-transform:rotate(" + angle + "deg); -o-transform:rotate(" + angle + "deg); -ms-transform:rotate(" + angle + "deg); transform:rotate(" + angle + "deg);'> <p style='-moz-transform:rotate(" + angle2 + "deg); -webkit-transform:rotate(" + angle2 + "deg); -o-transform:rotate(" + angle2 + "deg); -ms-transform:rotate(" + angle2 + "deg); transform:rotate(" + angle2 + "deg);'>" + valeur + " W</p> <div/> ";
 
-                //
-            //alert(htmlLine);
-            document.body.innerHTML += htmlLine; 
-        }
+<script>
+    function timedRefresh(timeoutPeriod) {
+        setTimeout("location.reload(true);", timeoutPeriod);
+    }
+    function DeleteElias(id) {
+        if (document.getElementById('Elia' + id)) {
+            var test = document.getElementById('Elia' + id);
+            test.remove()
+        }}
 
-    function getOffset( el ) {
+
+
         
-        if(el.getBoundingClientRect() != null){
+        var clients = '{{client}}';  
+        var generateurs = '{{generateur}}';
+        var matrice = eval('{{mat}}');
+        console.log('matrice 0', matrice)
+
+        function timedRefresh(timeoutPeriod) {
+            setTimeout("location.reload(true);",timeoutPeriod);
+        }
+          
+    
+
+    function deleteClient(i) {
+            if (document.getElementById('C' + i)) {
+                var test = document.getElementById('C' + i);
+                test.remove()
+            }
+    }
+
+    function deleteGene(i) {
+            if (document.getElementById('d' + i)) {
+                var test = document.getElementById('d' + i);
+                test.remove()
+            }
+    }
+
+    function connect(div1, div2, color, thickness, opac, valeur, id) {
+        
+        var off1 = getOffset(div1);
+        
+        var off2 = getOffset(div2);
+        // bottom right
+        var x1 = off1.left + off1.width / 2;
+        var y1 = off1.top
+        // top 3igh margin-left: 5px;t
+        var x2 = off2.left + off2.width / 2;
+        var y2 = off2.top + off2.height;
+        // distance
+        var length = Math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)));
+        // center
+        var cx = ((x1 + x2) / 2) - (length / 2);
+        var cy = ((y1 + y2) / 2) - (thickness / 2);
+        // angle
+        var angle = Math.atan2((y1 - y2), (x1 - x2)) * (180 / Math.PI);
+
+        var angle2 = -angle;
+        // make hr
+        var htmlLine = "<div id='Elia" + id + "' class='ligne' style='padding:0px; margin:0px; height:" + thickness + "px; background-color:" + color + "; opacity: 0.5" + opac + "; line-height:1px; position:absolute; left:" + cx + "px; top: " + cy + "px; width:" + length + "px; -moz-transform:rotate(" + angle + "deg); -webkit-transform:rotate(" + angle + "deg); -o-transform:rotate(" + angle + "deg); -ms-transform:rotate(" + angle + "deg); transform:rotate(" + angle + "deg);' /div><div style='opacity: 1;'> <p style='-moz-transform:rotate(" + angle2 + "deg); -webkit-transform:rotate(" + angle2 + "deg); -o-transform:rotate(" + angle2 + "deg); -ms-transform:rotate(" + angle2 + "deg); transform:rotate(" + angle2 + "deg); '>" + valeur + " W</p> </div> ";
+
+        //
+        document.body.innerHTML += htmlLine;
+    }
+
+    function getOffset(el) {
+
+        if (el.getBoundingClientRect() != null) {
             var rect = el.getBoundingClientRect();
             return {
                 left: rect.left + window.pageXOffset,
@@ -107,29 +137,87 @@
                 width: rect.width || el.offsetWidth,
                 height: rect.height || el.offsetHeight
             };
-        }    
-    }
-
-
-    var clients = '{{client}}';  
-    var generateurs = '{{generateur}}';
-    var matrice = eval('{{mat}}');
-    console.log(matrice)
-
-    
-    for (var i=1; i<=clients; i++){ 
-        for(var g=1; g<=generateurs; g++){
-            var div1 = document.getElementById('div'+i);
-            var div2 = document.getElementById('d'+g) 
-
-            if (matrice[i-1][g-1] == 0)
-                connect(div1, div2, "black", 2, 0, matrice[i-1][g-1]);
-            else
-                connect(div1, div2, "black", 2, 1, matrice[i-1][g-1]);
         }
     }
 
+    function createClient(sum_clients,conso, i){
+        var node = document.getElementById("clients")
+        if (sum_clients == true)
+            var htmlClient = "<div id='C"+i+"' class='client' style='background:orangered;' '> <p>Client"+i+" <br> "+conso+" W</p> <img class='img'src='{{url_for('static', filename='EU_flag_square.PNG')}}'  /></div>"
+        else
+            var htmlClient = "<div id='C"+i+"' class='client' '> <p>Client"+i+" <br> "+conso+" W</p> </div>"
+        node.innerHTML += htmlClient;
+    }
 
-            
-    </script>
-</html> 
+    function createGenerateur(listeal, g){
+        var node = document.getElementById("gene")
+        console.log("liste alarme",listeal[g-1])
+        console.log("numero generateur : ",g)
+        if (listeal[g-1] == -1){
+            var htmlClient = "<div id='d"+g+"' class='gene' style='background: blue;'> <p>Generateur"+g+" <br> "+prod[g-1]+ " W</p> <img src='{{url_for('static', filename='EU_flag_square.PNG')}}'</div>"
+        }
+        else if (listeal[g-1] == 1){
+            var htmlClient = "<div id='d"+g+"' class='gene' style='background:red;'> <p>Generateur"+g+" <br> "+prod[g-1]+ " W</p> <img src='{{url_for('static', filename='EU_flag_square.PNG')}}'</div>"
+        }
+        else if (listeal[g-1] == 2){
+            var htmlClient = "<div id='d"+g+"' class='gene' style='background:teal;'> <p>Generateur"+g+" <br>HACKED</p> </div>"
+        }
+        else{
+            var htmlClient = "<div id='d"+g+"' class='gene''> <p>Generateur"+g+" <br> "+prod[g-1]+ " W</p> </div>"
+        }
+        node.innerHTML += htmlClient;
+    }
+
+
+    var clients = '{{client}}';
+    var generateurs = '{{generateur}}';
+    var conso_client = eval('{{conso_client}}')
+    var sum_clients = '{{sum_client}}'
+    var listeal = eval('{{listeal}}')
+    var prod = eval('{{prod}}')
+    
+    function autoReload() {
+        setTimeout(function () {
+            $.ajax({
+                url: '/',
+                method: 'get',
+                data: { jsdata: 'lalal' },
+                success: function (data) {
+                    matrice = eval(data.matrice)
+                    sum_clients = data.sum_client
+                    listeal = data.listeal
+                    conso = data.conso
+                    for (var i = 1; i <= clients; i++) {
+                        deleteClient(i)
+                        createClient(sum_clients[i-1],conso[i-1], i)
+                    }
+                    for (var g = 1; g <= generateurs; g++) {
+                        deleteGene(g)
+                        createGenerateur(listeal,g)
+                    }
+
+                    for (var i = 1; i <= clients; i++) {
+                        for (var g = 1; g <= generateurs; g++) {
+                            var div1 = document.getElementById('C' + i);
+                            var div2 = document.getElementById('d' + g)
+                            var id = "" + i + g;
+                            DeleteElias(id);
+                            if (matrice[i - 1][g - 1] == 0)
+                                connect(div1, div2, "black", 2, 0, matrice[i - 1][g - 1], id);
+                            else
+                                connect(div1, div2, "black", 2, 1, matrice[i - 1][g - 1], id);
+                        } 
+                    }
+                    
+                }
+            });
+            autoReload();  // calling again after 1 second
+        }, 1000);
+    }
+    autoReload(); // calling the function for the first time
+
+
+
+</script>
+
+</html>
