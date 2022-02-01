@@ -203,19 +203,13 @@ async def sendConsommationToGenerator(url):
         node = await client.nodes.root.get_child(["0:Objects", f"{idx}:Alarm", f"{idx}:alarme"])
 
         capacity = await client.nodes.root.get_child(["0:Objects", f"{idx}:Capa&Coeff", f"{idx}:capa"])
-        #listCapa[index] = await capacity.read_value()
         listDispo[index] = await capacity.read_value()
-        #listCapa.append(await capacity.read_value())
-        #listDispo.append(await capacity.read_value())
 
         coeff = await client.nodes.root.get_child(["0:Objects", f"{idx}:Capa&Coeff", f"{idx}:coeff"])
         
         listCoeff[int(index)] = await capacity.read_value()*await coeff.read_value()
         print(f'liste coeff = {listCoeff}, index = {index}, listeConso = {listConso}')
        
-        # We subscribe to data changes for 1 node, l'alarme du générateur.
-        """  await alarmeSubscription.subscribe_data_change(node)
-        await ecartScadaGeneSubscription.subscribe_data_change(node2) """
         conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
 
         
@@ -224,9 +218,7 @@ async def sendConsommationToGenerator(url):
             consoTotale = 0
             consoTotaleMoins1 = 0
             initStart += 1
-            await asyncio.sleep(1)
-            # await asyncio.sleep(2)
-            # await asyncio.sleep(4)            
+            await asyncio.sleep(1)        
             for i in range(len(listConso)):
                 consoTotale += matriceFin[i][int(index)]
                 consoTotaleMoins1 += matriceFinMoins1[i][int(index)]
