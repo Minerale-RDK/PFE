@@ -41,9 +41,13 @@ class service:
     print("    build:",self.build)
     print("    image:",self.image)
     if (self.name.find("client-scada1") != -1):
-        print('    ports:\n     - "5000:5000"\n     - "2222:22"')
+        print('    ports:\n     - "5000:5000"')
     if (self.name.find("client-scada-rescue") != -1):
-        print('    ports:\n     - "5001:5000"\n     - "2223:22"')
+        print('    ports:\n     - "5001:5000"')
+    if (self.name.find("server-gene1") != -1):
+        print('    ports:\n     - "2222:22"')
+    if (self.name.find("server-gene2") != -1):
+        print('    ports:\n     - "2223:22"')
     if (len(self.environment)==1):
         print("    environment:\n     -",self.environment[0])
     if (len(self.environment)>1):
@@ -51,16 +55,9 @@ class service:
         for i in range (0,len(self.environment)):
             print("     -",self.environment[i])
     print("   ", self.restart)
-    # if (self.volumes != "0"):
-    #   print("    volumes:\n     -" ,self.volumes)
-    #   print("     - /run/docker.sock:/run/docker.sock")
-    #   print("     -       - certificates-volume:/certificates-all")
-    # if (self.volumes != "0"):
     print("    volumes:")
     print("     - '/run/docker.sock:/run/docker.sock'")
     print("     - certificates-volume:/certificates-all")
-    if (self.name.find("client-captor") != -1 ):
-        print(f"     - volume1:/data")
     print("\n")
   
 
@@ -76,7 +73,6 @@ def goNext():
     count_gene= geneNb.get()
     conso = IntVar
     tabGeneratorPower= []
-    tabCaptorVolumeDevice = []
     
 
     #scroll bar
@@ -135,7 +131,7 @@ def consum():
 
     tabVolume= []
     tabService = []
-    countConso,countGene,countCaptor =1,1,1
+    countConso,countGene =1,1
 
 
 #consommateur
@@ -174,31 +170,6 @@ def consum():
 
         countGene +=1
         
-
-#captor    
-    nbCaptor = len(listPower)
-    for i in range (0, nbCaptor):
-        name = "client-captor"+str(countCaptor)
-        build = "docker-client-minimal_captor/."
-        image = "client-captor"+str(countCaptor)
-        env = ["COUNT="+ str(countCaptor)]
-        vol = "volume"+str(countCaptor)
-        nameVol = "volume"+str(countCaptor)
-        driver = "local"
-        typeNet = "none"
-        o = "bind"
-        device = '"data"'
-        captor= service(name,build,image,env,vol)
-        tabService.append(captor)
-        vol = Volume(nameVol,driver,typeNet,o,device)
-        tabVolume.append(vol)
-
-        cmd = (f"openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config docker-client-minimal_captor/configuration_certs.cnf \
--keyout docker-client-minimal_captor/private-key-capteur-{countCaptor}.pem -outform der -out certificates-all/certificate-capteur-{countCaptor}.der")
-        os.system(cmd)
-
-        countCaptor +=1
-
 #scada 
     nbScada = 1
     for i in range (1, int(nbScada)+1):
@@ -228,14 +199,8 @@ openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config docker-clien
 
 
 def window2():
-    close_window()
-    # subprocess.call("docker-compose up --build", shell= True)
-    # window2 = Tk()
-    # window2.geometry("720x480")
-    # window2.title("Docker-Compose Generator2")
-    # label = Label(window2, text='Docker-Compose Generator', bg = colorBg, foreground='#777', pady = 15, font = ("Verdana",14)).grid(row=0, column=1)
-    # window2['bg']= colorBg
-    # window2.mainloop()
+    window.destroy()
+    
 
 
 
@@ -255,9 +220,7 @@ def AffichageGlobale(tabService,tabVolume):
 def print_docker(tabConsumption):    
     for i in range (0, len(tabConsumption)):
         print(tabConsumption)
-        
-def close_window():
-    window.destroy()  
+
 
 def clear():
     list = window.grid_slaves()
@@ -269,7 +232,6 @@ def clear():
 colorBg='#F4FEFE'
 colorLabel ="#F4FEFE"
 colorButton = "#F4FEFE"
-
 
 
 #init

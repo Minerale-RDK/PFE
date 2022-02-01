@@ -7,7 +7,7 @@ LABEL BuildDate="16/11/21"
 
 #We update it
 RUN apk update
-RUN apk add --no-cache build-base libffi-dev libc-dev
+RUN apk add --no-cache build-base libffi-dev libc-dev curl
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua

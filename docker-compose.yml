@@ -5,7 +5,7 @@ services:
     build: docker-server-minimal_consommateur/.
     image: server-conso1
     environment:
-     - CONSO=500
+     - CONSO=300
     restart: always
     volumes:
      - '/run/docker.sock:/run/docker.sock'
@@ -26,9 +26,11 @@ services:
   server-gene1:
     build: docker-server-minimal_generateur/.
     image: server-gene1
+    ports:
+     - "2222:22"
     environment:
-     - GENE=800
-     - COEFF=0.23
+     - GENE=400
+     - COEFF=0.2
     restart: always
     volumes:
      - '/run/docker.sock:/run/docker.sock'
@@ -38,37 +40,15 @@ services:
   server-gene2:
     build: docker-server-minimal_generateur/.
     image: server-gene2
+    ports:
+     - "2223:22"
     environment:
-     - GENE=400
-     - COEFF=0.15
+     - GENE=600
+     - COEFF=0.3
     restart: always
     volumes:
      - '/run/docker.sock:/run/docker.sock'
      - certificates-volume:/certificates-all
-
-
-  client-captor1:
-    build: docker-client-minimal_captor/.
-    image: client-captor1
-    environment:
-     - COUNT=1
-    restart: always
-    volumes:
-     - '/run/docker.sock:/run/docker.sock'
-     - certificates-volume:/certificates-all
-     - volume1:/data
-
-
-  client-captor2:
-    build: docker-client-minimal_captor/.
-    image: client-captor2
-    environment:
-     - COUNT=2
-    restart: always
-    volumes:
-     - '/run/docker.sock:/run/docker.sock'
-     - certificates-volume:/certificates-all
-     - volume1:/data
 
 
   client-scada1:
@@ -76,7 +56,6 @@ services:
     image: client-scada1
     ports:
      - "5000:5000"
-     - "2222:22"
     environment:
      - NbConso=2
      - NbGene=2
@@ -91,7 +70,6 @@ services:
     image: client-scada-rescue
     ports:
      - "5001:5000"
-     - "2223:22"
     environment:
      - NbConso=2
      - NbGene=2
@@ -102,20 +80,6 @@ services:
 
 
 volumes:
-  volume1:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: "data" 
-
-  volume2:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: "data"
-
   certificates-volume:
     driver: local
     driver_opts:
