@@ -199,6 +199,7 @@ openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config docker-clien
 
 
 def window2():
+    os.system("docker-compose up --build -d")
     window.destroy()
     
 
