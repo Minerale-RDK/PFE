@@ -11,6 +11,7 @@ RUN apk add --no-cache build-base libffi-dev libc-dev
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua
+RUN pip install --no-cache-dir requests
 
 #We install an SFTP-server and make it vulnerable
 RUN apk add openssh && \

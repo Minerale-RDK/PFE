@@ -1,18 +1,18 @@
 import asyncio
 import sys
-
+import requests
 import logging
 from asyncua import Client, Node, ua
 from threading import Thread
 from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import os
 
 from multiprocessing import Process
 
 clientminimalscada = Flask(__name__)
 
-@clientminimalscada.route('/')
+@clientminimalscada.route('/',methods=["GET"])
 def home():
 
     global matriceFin, alarmesGene, ecartDemCons
@@ -25,10 +25,16 @@ def home():
     client= len(matrice)
     sum_client = ecartDemCons.copy()#Liste alarmes des consomateurs
     sum_gene = alarmesGene.copy()#Liste alarmes des genes
-    print(f'Alarmes de sum_gene = {sum_gene}, alramres de sum_client {sum_client}')
+    #print(f'Alarmes de sum_gene = {sum_gene}, alramres de sum_client {sum_client}')
+
+    liste = { "matrice" : matrice, "sum_gene" : sum_gene, "sum_client":sum_client, "listeal":sum_gene, 'conso': conso}
+    text = request.args.get('jsdata')
+    if text:
+        return liste
 
     return render_template("index.html", client=client, generateur=generateur, mat = matrice, conso=conso, prod=prod, 
-                                    sum_client =sum_client, sum_gene=sum_gene); 
+                                    sum_client =sum_client, sum_gene=sum_gene)
+
 
 
 consommationTotale = 0
@@ -37,13 +43,16 @@ listCoeff = []
 listConso = []
 listDispo = []
 matriceFin = [[]]
+matriceFinMoins1 = [[]]
 listAlarm = []
 ecartDemCons = []
 alarmesGene = []
+ecartScadaGene = []
 
 def orderGene(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
-    augmentation = True
     listeTrie = []
+    listDispoReel = [0 for i in range(len(listDispo))]
+    listConsoPrec = [0 for i in range(len(listDispo))]
     matricePasTrie = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
     matriceTrie = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
     matricePrecTrie = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
@@ -51,12 +60,25 @@ def orderGene(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
     listDispoCopy = listDispo.copy()
     listConsoCopy = listConso.copy()
     indexListCroissant = sorted(range(len(listeCoeff)), key=lambda k: listeCoeff[k],reverse=True)
+
+    
+    for i in range(len(matricePrec[0])):
+        for j in range(len(matricePrec)):
+            listConsoPrec[i] += matricePrec[j][i] 
+            
+    for i in range(len(listConsoPrec)):
+        if listConsoPrec[i] + listeCoeff[i] >= listDispo[i]:
+            listDispoReel[i] = listDispo[i]
+        else:
+            listDispoReel[i] = listConsoPrec[i] + listeCoeff[i]
+    print(f'list dispo réel = {listDispoReel}, liste dispo = {listDispo}, listeConsoPrec = {listConsoPrec}')
+
     for i in indexListCroissant:
-        listeTrie.append(listDispo[i])
+        listeTrie.append(listDispoReel[i])
     for i in range(len(listConso)):
         for j in range(len(listDispo)):
             matricePrecTrie[i][j] = matricePrec[i][indexListCroissant[j]]
-    matricePasTrie = smartFunction(listConso, listeTrie, listeCoeff, matricePrecTrie, 1)
+    matricePasTrie = smartFunction(listConso, listeTrie, listeCoeff, matricePrecTrie, 2, listDispoCopy)
     
     for i in range(len(listConso)):
         for j in range(len(listDispo)):
@@ -64,7 +86,7 @@ def orderGene(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
     return matriceTrie
             
     
-def smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
+def smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp, listCapa):
     matrice = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
     listConsoInit = listConso.copy()
     listeConsoCopy = listConso.copy()
@@ -75,24 +97,38 @@ def smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
     listeEcartNow = []
     listeSumEcart= []
     listePb = [0 for i in range(len(listDispo))]
+    print(f'at the lDispo = {listeDispoCopy}, lCon = {listeConsoCopy} vit remp = {vitesseRemp}')
     
-    
-    for y in range(vitesseRemp):        
-        for j in range(len(listDispo)):
-            while round(listeDispoCopy[j]*1/vitesseRemp) > 0:
-                for i in range(len(listConso)):
-                    demande = listeConsoCopy[i]
-                    if demande <= round(listeDispoCopy[j]*1/vitesseRemp): #True - False
-                        listeDispoCopy[j] -= demande #Dispo = 300
-                        matrice[i][j] += demande#Case gene1 conso1 = 200
-                        listeConsoCopy[i] = 0
+    for i in range(vitesseRemp):
+        for y in range(len(listeConsoCopy)):
+            while round(listeConsoCopy[y]/vitesseRemp) != 0:
+                for h in range(len(listeDispoCopy)):
+                    if round(listeConsoCopy[y]/2) < listeDispoCopy[h]:
+                        matrice[y][h] += int(round(listeConsoCopy[y]/vitesseRemp))
+                        listeDispoCopy[h] -= int(round(listeConsoCopy[y]/vitesseRemp))
+                        listeConsoCopy[y] -= int(round(listeConsoCopy[y]/vitesseRemp))
+                        continue
                     else:
-                        ecart = listeConsoCopy[i] - round(listeDispoCopy[j]*1/vitesseRemp) #Demande 400 Dispo 300 ecart = 100
-                        listeDispoCopy[j] -= demande - ecart #Dispo = 0
-                        matrice[i][j] += demande - ecart#Case gene1 conso1 = 200
-                        listeConsoCopy[i] = ecart
-                break
-                
+                        matrice[y][h] += listeDispoCopy[h]
+                        listeConsoCopy[y] -= listeDispoCopy[h]
+                        listeDispoCopy[h] = 0
+                if sum(listeDispoCopy) == 0:
+                    break
+    for y in range(len(listeConsoCopy)):
+            while round(listeConsoCopy[y]) != 0:
+                for h in range(len(listeDispoCopy)):
+                    if round(listeConsoCopy[y]/2) < listeDispoCopy[h]:
+                        matrice[y][h] += int(round(listeConsoCopy[y]))
+                        listeDispoCopy[h] -= int(round(listeConsoCopy[y]))
+                        listeConsoCopy[y] -= int(round(listeConsoCopy[y]))
+                        continue
+                    else:
+                        matrice[y][h] += listeDispoCopy[h]
+                        listeConsoCopy[y] -= listeDispoCopy[h]
+                        listeDispoCopy[h] = 0
+                if sum(listeDispoCopy) == 0:
+                    break
+        
     for h in range(len(listeDispoCopy)):
         a=0
         for g in range(len(matrice)):
@@ -109,25 +145,27 @@ def smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
         listeSumEcart.append(abs(listeEcartNow[h]-listEcartAP[h]))
     
     for h in range(len(listeDispoCopy)):
-        if listeSumEcart[h] >= (listeCapa[h]*listeCoeff[h]):
+        if listeSumEcart[h] >= listeCapa[h]/2:
             listePb[h] = 1
     if sum(listePb) == 0:
         return matrice
     
     else:
         if vitesseRemp != 10:
-            return smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp+1)
+            return smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp+1, listCapa)
         else:
             return matrice
 
 
 async def getDispatch(listConso, listDispo, listeCoeff):
-    global matriceFin, ecartDemCons
+    global matriceFin, ecartDemCons, matriceFinMoins1
     matriceFin = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
+
     
     while True:
         listConsoCopy = listConso.copy()
-        matriceFin = smartFunction(listConso, listDispo, listeCoeff,matriceFin,1 )
+        matriceFinMoins1 = matriceFin.copy()
+        matriceFin = orderGene(listConso, listDispo, listeCoeff,matriceFin,1 )
         ecartDemCons = [False for i in range(len(listConso))]
         for i in range(len(listConso)):
             if ((sum(matriceFin[i])+1)/(listConsoCopy[i]+1)) < 0.9:
@@ -144,7 +182,7 @@ private_key = f"private-key-scada-1.pem"
 
 async def sendConsommationToGenerator(url):
     global consommationTotale
-    global listCoeff, listCapa
+    global listCoeff, listCapa, ecartScadaGene
 
     index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
     #print(f'index = {index}')
@@ -163,9 +201,7 @@ async def sendConsommationToGenerator(url):
         idx = await client.get_namespace_index(uri)
         #conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
        
-        alarmeHandler = AlarmeHandler(url)
-        # We create a Client Subscription.
-        alarmeSubscription = await client.create_subscription(500, alarmeHandler)
+        prodAct = await client.nodes.root.get_child(["0:Objects", f"{idx}:Freq&Prod", f"{idx}:production"])
         node = await client.nodes.root.get_child(["0:Objects", f"{idx}:Alarm", f"{idx}:alarme"])
 
         capacity = await client.nodes.root.get_child(["0:Objects", f"{idx}:Capa&Coeff", f"{idx}:capa"])
@@ -180,32 +216,39 @@ async def sendConsommationToGenerator(url):
         print(f'liste coeff = {listCoeff}, index = {index}, listeConso = {listConso}')
        
         # We subscribe to data changes for 1 node, l'alarme du générateur.
-        await alarmeSubscription.subscribe_data_change(node)
+        """  await alarmeSubscription.subscribe_data_change(node)
+        await ecartScadaGeneSubscription.subscribe_data_change(node2) """
         conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
+
         
+        initStart = 0
         while True:
             consoTotale = 0
+            consoTotaleMoins1 = 0
+            initStart += 1
             await asyncio.sleep(1)
             # await asyncio.sleep(2)
-            # await asyncio.sleep(4)
-            
+            # await asyncio.sleep(4)            
             for i in range(len(listConso)):
                 consoTotale += matriceFin[i][int(index)]
-                print(f"Sending {consoTotale} W of consommation to {url}")
-                await conso.write_value(consoTotale)
+                consoTotaleMoins1 += matriceFinMoins1[i][int(index)]
+            print(f'consototale moins 1 = {consoTotaleMoins1} et prod Act = { await prodAct.read_value()}')
+            prodActNow = await prodAct.read_value()
+            if initStart > 15:
+                if consoTotaleMoins1 != prodActNow and consoTotale != prodActNow:
+                    ecartScadaGene[int(index)] += 1
+                else:
+                    ecartScadaGene[int(index)] = 0
+            if ecartScadaGene[int(index)] > 4:
+                print(f'ALERTE GENERALLEEEEEEEEEE et index = {index}')
+                listDispo[int(index)] = 0
+                alarmesGene[int(index)] = 2
+                break                
+            else:
+                alarmesGene[int(index)] = await node.read_value()  
+            print(f"Sending {consoTotale} W of consommation to {url}")
+            await conso.write_value(int(consoTotale))
         
-        #return client
-        
-
-class AlarmeHandler:
-    url_gene = ''
-    global alarmesGene
-    def __init__(self, url):       
-        self.url_gene = url
-    async def datachange_notification(self, node: Node, val, data):
-        alarmesGene[int(self.url_gene.split('opc.tcp://server-gene')[1][:1]) - 1] = val  
-
-
 
 async def retrieveConsommationFromConsummer(url):
     global listConso
@@ -227,9 +270,8 @@ async def retrieveConsommationFromConsummer(url):
         consommationConsommateurObject = await client.nodes.root.get_child(["0:Objects", f"{idx}:Conso", f"{idx}:consommation"])
         #print(client.__str__())
         while True:
-            # await asyncio.sleep(1.05)
+            await asyncio.sleep(2)
             # await asyncio.sleep(2.05)
-            await asyncio.sleep(4.05)
             listConso[index] = await consommationConsommateurObject.read_value()
             print(f'consommation = {listConso[int(index)]} à l\'index {index}')
     
@@ -242,13 +284,15 @@ async def main():
     # print("NbConso : ",NbConso)
     # print("NbGene : ",NbGene)
     taskList = []
-    global listDispo, listConso, listCoeff, matriceFin, ecartDemCons, alarmesGene
+    global listDispo, listConso, listCoeff, matriceFin, matriceFinMoins1, ecartDemCons, alarmesGene,ecartScadaGene
     listDispo = [0 for i in range(NbGene)]
     listConso = [0 for i in range(NbConso)]
     listCoeff = [0 for i in range(NbGene)]
     ecartDemCons = [0 for i in range(NbConso)]
     alarmesGene = [0 for i in range(NbGene)]
+    ecartScadaGene = [0 for i in range(NbGene)]
     matriceFin = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
+    matriceFinMoins1 = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
 
     # Creation des Generateurs et consommateurs
     for i in range(NbConso):

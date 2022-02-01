@@ -31,8 +31,10 @@ def Consumption(cpt,consumption):
     elif (cpt in range (11,19)):
         consommation = random.uniform(0.75*consumption,1.04*consumption)
     # Soir
-    elif (cpt in range (19,24)):
-        consommation = 500#random.uniform(1.02*consumption,1.34*consumption)
+    elif (cpt in range (19,22)):
+        consommation = random.uniform(2.02*consumption,2.34*consumption)
+    elif (cpt in range (22,24)):
+        consommation = random.uniform(0.01*consumption,0.1*consumption)
     return int(consommation)
 
 
@@ -86,7 +88,7 @@ async def main():
         while True:
             # await asyncio.sleep(1)
             #await asyncio.sleep(2)
-            await asyncio.sleep(4)
+            await asyncio.sleep(2)
             consommationHoraire = Consumption(cpt,consommation)
             print(f'consommationHoraire = {consommationHoraire}')
             #consommation+=1

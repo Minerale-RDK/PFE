@@ -18,6 +18,15 @@ services:
     restart: always
     volumes:
       - certificates-volume:/certificates-all
+
+  server-conso3:
+    build: docker-server-minimal_consommateur/.
+    image: server-conso3
+    environment:
+     - CONSO= 350
+    restart: always
+    volumes:
+      - certificates-volume:/certificates-all
     
 
   server-gene1:
@@ -29,6 +38,14 @@ services:
     volumes:
       - certificates-volume:/certificates-all
 
+  server-gene2:
+    build: docker-server-minimal_generateur/.
+    image: server-gene2
+    environment:
+     - GENE= 450
+    restart: always
+    volumes:
+      - certificates-volume:/certificates-all
 
   client_captor1:
     build: docker-client-minimal_captor/.
@@ -40,7 +57,6 @@ services:
      - volume1:/data
      - certificates-volume:/certificates-all
 
-
   client_scada1:
     build: docker-client-minimal_scada/.
     image: client-scada1
@@ -48,8 +64,8 @@ services:
       - "5000:5000"
       - "2222:22"
     environment:
-     - NbConso= 2
-     - NbGene= 1
+     - NbConso= 3
+     - NbGene= 2
     restart: always
     volumes:
       - certificates-volume:/certificates-all

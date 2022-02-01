@@ -11,6 +11,7 @@ RUN apk add build-base libffi-dev libc-dev
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua
+RUN pip install --no-cache-dir requests
 
 #Copy the script
 COPY . /

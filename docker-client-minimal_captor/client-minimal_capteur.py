@@ -41,13 +41,9 @@ async def RealConsoSendByTheGenerator(url):
         idx = await client.get_namespace_index(uri)
         conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Captor", f"{idx}:realconso"])
         while True:
-            # await asyncio.sleep(1)
-            await asyncio.sleep(2)
-            data = [await conso.read_value()]
-            print(f"Real Consommation Sending { data[0] } W  to {url}")
-            with open('./data/test.csv', 'a', newline='') as f:
-                wr =csv.writer(f)
-                wr.writerow(data)
+            await asyncio.sleep(1)
+            data = await conso.read_value()
+             
 
 async def main():
     count = int(sys.argv[1])

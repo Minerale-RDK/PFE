@@ -16,7 +16,7 @@ from asyncua.server.user_managers import CertificateUserManager
 
 starttime=time.time()
 
-async def Production(consommation, capacity, coef_vitesse, production):
+async def Production(consommation, capacity, coef_vitesse, production, realConsommation):
 
     productionAct = await production.read_value()
 
@@ -25,24 +25,26 @@ async def Production(consommation, capacity, coef_vitesse, production):
         if productionAct > consommation:
             productionAct = consommation
         await production.write_value(int(productionAct))
+        await realConsommation.write_value(int(productionAct)) 
     elif productionAct > consommation:
         productionAct -= capacity*coef_vitesse          
         if productionAct < consommation:
             productionAct = consommation
         await production.write_value(int(productionAct))
+        await realConsommation.write_value(int(productionAct)) 
     else:
         print('teush')
 
     # f1 - f0 = (Production-Consommation) / Capacité Totale
     f1 = (productionAct - consommation)/capacity + 50
-    #print(f"freq = {f1} productionAct={productionAct} consommation = {consommation} capacité = {capacity}")
+    print(f"freq = {f1} productionAct = {productionAct} consommation = {consommation} capacité = {capacity}")
     
     return f1
 
 
 @uamethod
 def func(parent, value):
-    return value * 2
+    return value 
 
 async def main():
     _logger = logging.getLogger('asyncua')
@@ -84,7 +86,7 @@ async def main():
 
     objectCapaCoeff = await server.nodes.objects.add_object(idx, 'Capa&Coeff')
     capa = await objectCapaCoeff.add_variable(idx, 'capa', capacity)
-    coeff = await objectCapaCoeff.add_variable(idx, 'coeff', 0.05)#Coeff en dur ici
+    coeff = await objectCapaCoeff.add_variable(idx, 'coeff', 0.2)#Coeff en dur ici
 
     objectFqandProd = await server.nodes.objects.add_object(idx, 'Freq&Prod')
     production = await objectFqandProd.add_variable(idx, 'production', 0)
@@ -120,11 +122,10 @@ async def main():
                     await production.write_value(conso)
                     start = False
                     break
-            # await asyncio.sleep(1)
+            await asyncio.sleep(0.5)
             # await asyncio.sleep(2)
-            await asyncio.sleep(4)
             
-            newFreq = await Production(await consommation.read_value(), capacity, 0.05, production)
+            newFreq = await Production(await consommation.read_value(), capacity, 0.2, production, realConsommation)
             if newFreq > 50.5:
                 await alarmeFreq.write_value(1)
             if newFreq < 49.5:
@@ -132,10 +133,10 @@ async def main():
             elif 49.5 <= newFreq <= 50.5:
                 await alarmeFreq.write_value(0)           
             await frequence.write_value(newFreq)
-            print("nouvelle frequence = ", await frequence.read_value(), "avec consommation", await consommation.read_value(), 'avec alarme = ', await alarmeFreq.read_value())
+            #print("nouvelle frequence = ", await frequence.read_value(), "avec consommation", await consommation.read_value(), 'avec alarme = ', await alarmeFreq.read_value())
             
             # Conso Capteur
-            await realConsommation.write_value(await consommation.read_value())  
+             
 
 import os 
 
