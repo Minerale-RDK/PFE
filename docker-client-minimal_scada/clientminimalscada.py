@@ -1,19 +1,17 @@
 import asyncio
-import sys
-import requests
+import sys,os
+
 import logging
 from asyncua import Client, Node, ua
 from threading import Thread
 from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
 from flask import Flask, render_template, request
-import os
-
-from multiprocessing import Process
 
 clientminimalscada = Flask(__name__)
 
 @clientminimalscada.route('/',methods=["GET"])
 def home():
+    global listConso,listDispo,matriceFin
 
     global matriceFin, alarmesGene, ecartDemCons
     
@@ -176,30 +174,30 @@ async def getDispatch(listConso, listDispo, listeCoeff):
 
 
 # variables certificat chiffrement
+'''
 cert_idx = 1
 cert = f"/certificates-all/certificate-scada-1.der"
 private_key = f"private-key-scada-1.pem"
+'''
 
 async def sendConsommationToGenerator(url):
     global consommationTotale
     global listCoeff, listCapa, ecartScadaGene
 
     index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
-    #print(f'index = {index}')
     client = Client(url=url)
     '''
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
-        server_certificate="/certificates-all/certificate-gene-1.der"
+        server_certificate=f"/certificates-all/certificate-gene-{index+1}.der"
     )
     '''
+    
     async with client :
-        #print(f"TEst generateur connection et url = {url}")   
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
-        #conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
        
         prodAct = await client.nodes.root.get_child(["0:Objects", f"{idx}:Freq&Prod", f"{idx}:production"])
         node = await client.nodes.root.get_child(["0:Objects", f"{idx}:Alarm", f"{idx}:alarme"])
@@ -255,28 +253,26 @@ async def retrieveConsommationFromConsummer(url):
     client = Client(url=url)
 
     index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
+
     '''
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
-        server_certificate="/certificates-all/certificate-conso-1.der"
+        server_certificate=f"/certificates-all/certificate-conso-{index+1}.der"
     )
     '''
-    async with client:
-        #print("TEst consommateur connection")              
+
+    async with client:           
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
         consommationConsommateurObject = await client.nodes.root.get_child(["0:Objects", f"{idx}:Conso", f"{idx}:consommation"])
-        #print(client.__str__())
         while True:
             await asyncio.sleep(2)
             # await asyncio.sleep(2.05)
             listConso[index] = await consommationConsommateurObject.read_value()
-            print(f'consommation = {listConso[int(index)]} à l\'index {index}')
+            print(f'consommation = {listConso[index]} à l\'index {index}')
     
-
-
 
 async def main():
     NbConso = int(sys.argv[1])
@@ -306,38 +302,20 @@ async def main():
     L = await asyncio.gather(*taskList)
 
 
-import os
-
 def starter():
+    print("LAUCHING")
     asyncio.run(main())
 
 
 if __name__ == '__main__':
 
-    # os.system("sleep 4")
-    
-    # if not os.path.isfile("/certificates-all/certificate-scada-1.der"):
-    '''
-    if not os.path.isfile("/private-key-scada-1.pem"):
-        cmd = ("openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config configuration_certs.cnf \
--keyout /private-key-scada-1.pem -outform der -out /certificates-all/certificate-scada-1.der && echo ##### key added")
-        os.system(cmd)
-    else:
-        print("FILE EXISTS")
-    '''
-
+    os.system("sleep 3")
     port = int(os.environ.get('PORT', 5000))
 
-    # function = asyncio.run()
-    
-    os.system("sleep 4")
-    
     p = Thread(target=starter)
     p.start()
 
 
-    clientminimalscada.run(debug=True, host='0.0.0.0', port=port,use_reloader=True)
-    
-    # asyncio.run(main())
+    clientminimalscada.run(debug=True, host='0.0.0.0', port=port)
 
 

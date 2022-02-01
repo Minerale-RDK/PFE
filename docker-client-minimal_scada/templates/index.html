@@ -1,16 +1,13 @@
 <html>
 
 <head>
-    <!-- <meta charset="UTF-8"> -->
-    <!-- <meta http-equiv="refresh" content="0.5" > -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='style.css') }}">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
     <title>FlaskBlog</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.1.1/math.js></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
 </head>
 
 <body>
@@ -73,8 +70,21 @@
         if (document.getElementById('Elia' + id)) {
             var test = document.getElementById('Elia' + id);
             test.remove()
+        }}
+
+
+
+        
+        var clients = '{{client}}';  
+        var generateurs = '{{generateur}}';
+        var matrice = eval('{{mat}}');
+        console.log('matrice 0', matrice)
+
+        function timedRefresh(timeoutPeriod) {
+            setTimeout("location.reload(true);",timeoutPeriod);
         }
-    }
+          
+    
 
     function deleteClient(i) {
             if (document.getElementById('C' + i)) {
@@ -111,7 +121,7 @@
 
         var angle2 = -angle;
         // make hr
-        var htmlLine = "<div id='Elia" + id + "' class='ligne' style='padding:0px; margin:0px; height:" + thickness + "px; background-color:" + color + "; opacity: " + opac + "; line-height:1px; position:absolute; left:" + cx + "px; top: " + cy + "px; width:" + length + "px; -moz-transform:rotate(" + angle + "deg); -webkit-transform:rotate(" + angle + "deg); -o-transform:rotate(" + angle + "deg); -ms-transform:rotate(" + angle + "deg); transform:rotate(" + angle + "deg);'> <p style='-moz-transform:rotate(" + angle2 + "deg); -webkit-transform:rotate(" + angle2 + "deg); -o-transform:rotate(" + angle2 + "deg); -ms-transform:rotate(" + angle2 + "deg); transform:rotate(" + angle2 + "deg);'>" + valeur + " W</p> <div/> ";
+        var htmlLine = "<div id='Elia" + id + "' class='ligne' style='padding:0px; margin:0px; height:" + thickness + "px; background-color:" + color + "; opacity: 0.5" + opac + "; line-height:1px; position:absolute; left:" + cx + "px; top: " + cy + "px; width:" + length + "px; -moz-transform:rotate(" + angle + "deg); -webkit-transform:rotate(" + angle + "deg); -o-transform:rotate(" + angle + "deg); -ms-transform:rotate(" + angle + "deg); transform:rotate(" + angle + "deg);' /div><div style='opacity: 1;'> <p style='-moz-transform:rotate(" + angle2 + "deg); -webkit-transform:rotate(" + angle2 + "deg); -o-transform:rotate(" + angle2 + "deg); -ms-transform:rotate(" + angle2 + "deg); transform:rotate(" + angle2 + "deg); '>" + valeur + " W</p> </div> ";
 
         //
         //alert(htmlLine);
@@ -134,7 +144,7 @@
     function createClient(sum_clients,conso, i){
         var node = document.getElementById("clients")
         if (sum_clients == true)
-            var htmlClient = "<div id='C"+i+"' class='client' style='background:orangered;' '> <p>Client"+i+" <br> "+conso+" W</p> </div>"
+            var htmlClient = "<div id='C"+i+"' class='client' style='background:orangered;' '> <p>Client"+i+" <br> "+conso+" W</p> <img class='img'src='{{url_for('static', filename='EU_flag_square.PNG')}}'  /></div>"
         else
             var htmlClient = "<div id='C"+i+"' class='client' '> <p>Client"+i+" <br> "+conso+" W</p> </div>"
         node.innerHTML += htmlClient;
@@ -145,10 +155,10 @@
         console.log("liste alarme",listeal[g-1])
         console.log("numero generateur : ",g)
         if (listeal[g-1] == -1){
-            var htmlClient = "<div id='d"+g+"' class='gene' style='background: blue;'> <p>Generateur"+g+" <br> "+prod[g-1]+ " W</p> </div>"
+            var htmlClient = "<div id='d"+g+"' class='gene' style='background: blue;'> <p>Generateur"+g+" <br> "+prod[g-1]+ " W</p> <img src='{{url_for('static', filename='EU_flag_square.PNG')}}'</div>"
         }
         else if (listeal[g-1] == 1){
-            var htmlClient = "<div id='d"+g+"' class='gene' style='background:red;'> <p>Generateur"+g+" <br> "+prod[g-1]+ " W</p> </div>"
+            var htmlClient = "<div id='d"+g+"' class='gene' style='background:red;'> <p>Generateur"+g+" <br> "+prod[g-1]+ " W</p> <img src='{{url_for('static', filename='EU_flag_square.PNG')}}'</div>"
         }
         else if (listeal[g-1] == 2){
             var htmlClient = "<div id='d"+g+"' class='gene' style='background:teal;'> <p>Generateur"+g+" <br>HACKED</p> </div>"
