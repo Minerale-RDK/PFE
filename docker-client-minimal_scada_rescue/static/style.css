@@ -2,20 +2,14 @@
     border-width: 1px;
     border-style: solid;
     padding: 10;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    background-color: white;
 }
 
-body{
-    background-color: #F4F4F4;
-}
-
-.img {
-    width: 30px;
-    height: 30px;
+img {
+    width: 50px;
+    height: 50px;
     float: left;
-    left: 5px;
-    top: 5px;
+    left: 10px;
+    top: 0px;
     border-radius: 50%;
     z-index: 1000; 
 }
@@ -24,16 +18,10 @@ body{
     border-width: 1px;
     border-style: dashed;
     padding: 10;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    background-color: white;
-}
-
-#legende p{
-    margin-top: -3;
 }
 
 .gene{
-    width: 100px;
+    width: 100px;  
     height: 100px; 
     margin: 10; 
     margin-left: 30px;
@@ -41,10 +29,6 @@ body{
     border-radius: 5%;
     background:#333; 
     display: inline-block;
-}
-
-.gene b{
-    font-size:large;
 }
 
 

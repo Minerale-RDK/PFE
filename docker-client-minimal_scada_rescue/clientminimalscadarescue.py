@@ -164,12 +164,12 @@ async def sendConsommationToGenerator(url):
     index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
     client = Client(url=url)
 
-    await client.set_security(
+    """ await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate=f"/certificates-all/certificate-gene-{index+1}.der"
-    )
+    ) """
 
     async with client :
 
@@ -235,12 +235,12 @@ async def retrieveConsommationFromConsummer(url):
 
     index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
 
-    await client.set_security(
+    """ await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate=f"/certificates-all/certificate-conso-{index+1}.der"
-    )
+    ) """
 
     async with client:       
         uri = 'http://examples.freeopcua.github.io'

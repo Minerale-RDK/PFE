@@ -37,7 +37,4 @@ L'ajout des valeurs de base fréquence et consommation se font en dur dans la li
 
 # A FAIRE (par ordre d'importance)
 
-* Interface graphique de création de réseau
-* Régulation
-* Scada intelligent
-* 
+ 

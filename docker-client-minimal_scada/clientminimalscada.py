@@ -23,7 +23,6 @@ def home():
     client= len(matrice)
     sum_client = ecartDemCons.copy()#Liste alarmes des consomateurs
     sum_gene = alarmesGene.copy()#Liste alarmes des genes
-    #print(f'Alarmes de sum_gene = {sum_gene}, alramres de sum_client {sum_client}')
 
     liste = { "matrice" : matrice, "sum_gene" : sum_gene, "sum_client":sum_client, "listeal":sum_gene, 'conso': conso}
     text = request.args.get('jsdata')
@@ -174,11 +173,9 @@ async def getDispatch(listConso, listDispo, listeCoeff):
 
 
 # variables certificat chiffrement
-'''
 cert_idx = 1
 cert = f"/certificates-all/certificate-scada-1.der"
 private_key = f"private-key-scada-1.pem"
-'''
 
 async def sendConsommationToGenerator(url):
     global consommationTotale
@@ -186,14 +183,13 @@ async def sendConsommationToGenerator(url):
 
     index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
     client = Client(url=url)
-    '''
+    
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate=f"/certificates-all/certificate-gene-{index+1}.der"
     )
-    '''
     
     async with client :
         uri = 'http://examples.freeopcua.github.io'
@@ -225,7 +221,7 @@ async def sendConsommationToGenerator(url):
             print(f'consototale moins 1 = {consoTotaleMoins1} et prod Act = { await prodAct.read_value()}')
             prodActNow = await prodAct.read_value()
             if initStart > 15:
-                if consoTotaleMoins1 != prodActNow and consoTotale != prodActNow:
+                if prodActNow/consoTotaleMoins1 < 0.3 and prodActNow/consoTotale < 0.3 :
                     ecartScadaGene[int(index)] += 1
                 else:
                     ecartScadaGene[int(index)] = 0
@@ -245,23 +241,20 @@ async def retrieveConsommationFromConsummer(url):
     client = Client(url=url)
 
     index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
-
-    '''
+    
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate=f"/certificates-all/certificate-conso-{index+1}.der"
     )
-    '''
-
+    
     async with client:           
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)
         consommationConsommateurObject = await client.nodes.root.get_child(["0:Objects", f"{idx}:Conso", f"{idx}:consommation"])
         while True:
             await asyncio.sleep(2)
-            # await asyncio.sleep(2.05)
             listConso[index] = await consommationConsommateurObject.read_value()
             print(f'consommation = {listConso[index]} à l\'index {index}')
     

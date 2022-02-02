@@ -1,26 +1,24 @@
 import logging
 import asyncio
-import sys,os,json
+import sys,os,json,math
 
 from asyncua import ua, Server
 from asyncua.common.methods import uamethod
 
 import random
-import math
 
 from asyncua.crypto.permission_rules import SimpleRoleRuleset
 from asyncua.server.users import UserRole
 from asyncua.server.user_managers import CertificateUserManager
 
-'''
 DOCKERINFO = os.popen("curl -s --unix-socket /run/docker.sock http://docker/containers/$HOSTNAME/json").read()
 Name = json.loads(DOCKERINFO)["Name"].split("_")[1]
 index = int(Name.split('server-conso')[1][:1])
-'''
+
 
 @uamethod
 def func(parent, value):
-    return value * 2
+    return value
 
 def Consumption(cpt,consumption):
     # Nuit
@@ -38,35 +36,44 @@ def Consumption(cpt,consumption):
     return int(consommation)
 
 
+allCerts=os.listdir("certificates-all")
+
+def noNewCert():
+    global allCerts
+    if len(allCerts.copy()) == len(os.listdir("certificates-all")):
+        return True
+    else:
+        print("########### new cert ###########")
+        return False
+
+
 async def main():
     _logger = logging.getLogger('asyncua')
+    global allCerts
 
-    # server encryption
-    '''
+    # server encryption  
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("certificates-all/certificate-scada-1.der", name='admin_scada')
-    await cert_user_manager.add_admin("/certificates-all/certificate-scada-rescue-1.der", name='admin_scada_rescue')
-    '''
-
+    await cert_user_manager.add_admin("certificates-all/certificate-scada-rescue-1.der", name='admin_scada_rescue')
+    
+    
     # setup our server
     consommation  = int(sys.argv[1])
     
-    server = Server()#user_manager=cert_user_manager)
+    server = Server(user_manager=cert_user_manager)
     
     await server.init()
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/consommateur')
 
-    # Security policy
-    '''
+    # Security policy  
     server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
-    '''
+
 
     # Load server certificate and private key.
     # This enables endpoints with signing and encryption.
-    '''
     await server.load_certificate(f"/certificates-all/certificate-conso-{index}.der")
     await server.load_private_key(f"private-key-conso-{index}.pem")
-    '''
+
 
     # setup our own namespace, not really necessary but should as spec
     uri = 'http://examples.freeopcua.github.io'
@@ -84,16 +91,25 @@ async def main():
     cpt = 0
     async with server:
         while True:
-            # await asyncio.sleep(1)
-            #await asyncio.sleep(2)
-            await asyncio.sleep(2)
-            consommationHoraire = Consumption(cpt,consommation)
-            print(f'consommationHoraire = {consommationHoraire}')
-            await consommation1.write_value(consommationHoraire)
-            cpt+=1
-            if (cpt == 24):
-                print ('Nouveau Jour')
-                cpt = 0
+            if noNewCert():
+                await asyncio.sleep(2)
+                consommationHoraire = Consumption(cpt,consommation)
+                print(f'consommationHoraire = {consommationHoraire}')
+                await consommation1.write_value(consommationHoraire)
+                cpt+=1
+                if (cpt == 24):
+                    print ('Nouveau Jour')
+                    cpt = 0
+            else:
+                diff = list(set(allCerts).symmetric_difference(set(os.listdir('certificates-all'))))[0]
+                name = diff.split("-")[1] + diff.split("-")[2][:-4]
+                print(f"diff == {diff} && name == {name}")
+                
+                await cert_user_manager.add_admin(f"certificates-all/{diff}", name=f'admin_{name}')
+                
+                allCerts = os.listdir('certificates-all')
+
+
 
 
 if __name__ == '__main__':

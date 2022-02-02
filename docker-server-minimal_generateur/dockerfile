@@ -7,13 +7,13 @@ LABEL BuildDate="16/11/21"
 
 #We update it
 RUN apk update
-RUN apk add --no-cache build-base libffi-dev libc-dev
+RUN apk add --no-cache build-base libffi-dev libc-dev curl
 
 #We install asyncua
 RUN pip install --no-cache-dir asyncua
 
 #We install an SFTP-server and make it vulnerable
-RUN apk add openssh && \
+RUN apk add --no-cache openssh && \
 	ssh-keygen -A && \
 	sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config && \
 	echo -e "root\rroot" | passwd root
@@ -26,11 +26,9 @@ COPY . /
 RUN mkdir /certificates-all
 VOLUME /certificates-all
 
-
 #Pass the power generated as an environment variable
 ENV GENE=500
 ENV COEFF=0.1
 
 #Run it
-CMD ["sh","-c","/usr/sbin/sshd && python3 -u server-minimal_generateur_0.1.0.py $GENE $COEFF"]
-
+CMD ["sh","-c","/usr/sbin/sshd && python3 -u server-minimal_generateur.py $GENE $COEFF"]
