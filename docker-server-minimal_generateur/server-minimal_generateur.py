@@ -52,13 +52,15 @@ def func(parent, value):
     return value * 2
 
 async def main():
+    global allCerts
     _logger = logging.getLogger('asyncua')
 
     # server encryption
+    
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("/certificates-all/certificate-scada-1.der", name='admin_scada')
     await cert_user_manager.add_admin("/certificates-all/certificate-scada-rescue-1.der", name='admin_scada_rescue')
-
+    
     # setup our server
     capacity  = int(sys.argv[1])
     coefficient  = float(sys.argv[2])
@@ -68,15 +70,21 @@ async def main():
     server.set_endpoint('opc.tcp://0.0.0.0:4840/freeopcua/server/')
 
     # Security policy  
+    
     server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
+<<<<<<< HEAD
     # server.set_security_policy([ua.SecurityPolicyType.NoSecurity])
     server.set_security_IDs(["Basic256Sha256"])
 
+=======
+    
+>>>>>>> e97be6eec0c88df36d745e676f6d00329bef6908
     # Load server certificate and private key.
-    # This enables endpoints with signing and encryption.   
+    # This enables endpoints with signing and encryption. 
+      
     await server.load_certificate(f"/certificates-all/certificate-gene-{index}.der")
     await server.load_private_key(f"private-key-gene-{index}.pem")
-
+    
 
     # setup our own namespace, not really necessary but should as spec
     uri = 'http://examples.freeopcua.github.io'
@@ -140,7 +148,9 @@ async def main():
                 diff = list(set(allCerts).symmetric_difference(set(os.listdir('certificates-all'))))[0]
                 name = diff.split("-")[1] + diff.split("-")[2][:-4]
                 print(f"diff == {diff} && name == {name}")
+                
                 await cert_user_manager.add_admin(f"certificates-all/{diff}", name=f'admin_{name}')
+                
                 allCerts = os.listdir('certificates-all')
 
 

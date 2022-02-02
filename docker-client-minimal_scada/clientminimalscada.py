@@ -183,6 +183,7 @@ async def sendConsommationToGenerator(url):
 
     index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
     client = Client(url=url)
+    
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
@@ -205,7 +206,6 @@ async def sendConsommationToGenerator(url):
         listCoeff[int(index)] = await capacity.read_value()*await coeff.read_value()
         print(f'liste coeff = {listCoeff}, index = {index}, listeConso = {listConso}')
        
-        # We subscribe to data changes for 1 node, l'alarme du générateur.
         conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
 
         
@@ -214,15 +214,14 @@ async def sendConsommationToGenerator(url):
             consoTotale = 0
             consoTotaleMoins1 = 0
             initStart += 1
-            await asyncio.sleep(1)
-       
+            await asyncio.sleep(1)        
             for i in range(len(listConso)):
                 consoTotale += matriceFin[i][int(index)]
                 consoTotaleMoins1 += matriceFinMoins1[i][int(index)]
             print(f'consototale moins 1 = {consoTotaleMoins1} et prod Act = { await prodAct.read_value()}')
             prodActNow = await prodAct.read_value()
             if initStart > 15:
-                if consoTotaleMoins1 != prodActNow and consoTotale != prodActNow:
+                if prodActNow/consoTotaleMoins1 < 0.3 and prodActNow/consoTotale < 0.3 :
                     ecartScadaGene[int(index)] += 1
                 else:
                     ecartScadaGene[int(index)] = 0
@@ -242,14 +241,14 @@ async def retrieveConsommationFromConsummer(url):
     client = Client(url=url)
 
     index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
-
+    
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
         private_key=private_key,
         server_certificate=f"/certificates-all/certificate-conso-{index+1}.der"
     )
-
+    
     async with client:           
         uri = 'http://examples.freeopcua.github.io'
         idx = await client.get_namespace_index(uri)

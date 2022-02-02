@@ -18,7 +18,7 @@ index = int(Name.split('server-conso')[1][:1])
 
 @uamethod
 def func(parent, value):
-    return value * 2
+    return value
 
 def Consumption(cpt,consumption):
     # Nuit
@@ -55,7 +55,7 @@ async def main():
     cert_user_manager = CertificateUserManager()
     await cert_user_manager.add_admin("certificates-all/certificate-scada-1.der", name='admin_scada')
     await cert_user_manager.add_admin("certificates-all/certificate-scada-rescue-1.der", name='admin_scada_rescue')
-
+    
     
     # setup our server
     consommation  = int(sys.argv[1])
@@ -73,7 +73,7 @@ async def main():
     # This enables endpoints with signing and encryption.
     await server.load_certificate(f"/certificates-all/certificate-conso-{index}.der")
     await server.load_private_key(f"private-key-conso-{index}.pem")
-    
+
 
     # setup our own namespace, not really necessary but should as spec
     uri = 'http://examples.freeopcua.github.io'
@@ -104,7 +104,9 @@ async def main():
                 diff = list(set(allCerts).symmetric_difference(set(os.listdir('certificates-all'))))[0]
                 name = diff.split("-")[1] + diff.split("-")[2][:-4]
                 print(f"diff == {diff} && name == {name}")
+                
                 await cert_user_manager.add_admin(f"certificates-all/{diff}", name=f'admin_{name}')
+                
                 allCerts = os.listdir('certificates-all')
 
 

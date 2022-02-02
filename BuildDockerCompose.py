@@ -56,7 +56,7 @@ class service:
             print("     -",self.environment[i])
     print("   ", self.restart)
     print("    volumes:")
-    print("     - '/run/docker.sock:/run/docker.sock'")
+    print("     - '//var/run/docker.sock:/run/docker.sock'")
     print("     - certificates-volume:/certificates-all")
     print("\n")
   
