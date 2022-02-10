@@ -44,10 +44,9 @@ class service:
         print('    ports:\n     - "5000:5000"')
     if (self.name.find("client-scada-rescue") != -1):
         print('    ports:\n     - "5001:5000"')
-    if (self.name.find("server-gene1") != -1):
-        print('    ports:\n     - "2222:22"')
-    if (self.name.find("server-gene2") != -1):
-        print('    ports:\n     - "2223:22"')
+    if (self.name.find("server-gene") != -1):
+        index = self.name.split('-')[1][-2]
+        print(f'    ports:\n     - "222{1+int(index)}:22"')
     if (len(self.environment)==1):
         print("    environment:\n     -",self.environment[0])
     if (len(self.environment)>1):
@@ -56,7 +55,7 @@ class service:
             print("     -",self.environment[i])
     print("   ", self.restart)
     print("    volumes:")
-    print("     - '//var/run/docker.sock:/run/docker.sock'")
+    print("     - '/var/run/docker.sock:/run/docker.sock'")
     print("     - certificates-volume:/certificates-all")
     print("\n")
   
@@ -200,10 +199,9 @@ openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -config docker-clien
 
 def window2():
     window.destroy()
-    # os.system("docker-compose up --build -d")
-    os.system("docker-compose up --build")
+    # os.system("docker-compose up --build -d") ## uncomment prefered option
+    # os.system("docker-compose up --build")      ## 
     
-
 
 
 def AffichageGlobale(tabService,tabVolume):

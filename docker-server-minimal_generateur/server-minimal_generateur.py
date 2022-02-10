@@ -72,13 +72,7 @@ async def main():
     # Security policy  
     
     server.set_security_policy([ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt], permission_ruleset=SimpleRoleRuleset())
-<<<<<<< HEAD
-    # server.set_security_policy([ua.SecurityPolicyType.NoSecurity])
-    server.set_security_IDs(["Basic256Sha256"])
-
-=======
     
->>>>>>> e97be6eec0c88df36d745e676f6d00329bef6908
     # Load server certificate and private key.
     # This enables endpoints with signing and encryption. 
       
