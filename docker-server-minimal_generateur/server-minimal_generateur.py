@@ -28,8 +28,6 @@ async def Production(consommation, capacity, coef_vitesse, production):
         if productionAct < consommation:
             productionAct = consommation
         await production.write_value(int(productionAct))
-    else:
-        print('teush')
 
     # f1 - f0 = (Production-Consommation) / Capacité Totale
     f1 = (productionAct - consommation)/capacity + 50
