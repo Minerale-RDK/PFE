@@ -75,9 +75,9 @@ Cela représente le 'partenaire européen' qui intervient pour combler le manque
 
 #### Distribution intelligente d'électricité (smartFunction)
 
-Les générateurs possèdent un seuil d'écart de production entre deux itérations au-delà duquel une augmentation ou une chute de fréquence aura lieue. Ce seuil est égal à la moitié de la capacité du générateur, et provient directement de la formule ci-dessus. 
+Les générateurs possèdent un seuil d'écart de production entre deux itérations au-delà duquel une augmentation ou une chute de fréquence aura lieu. Ce seuil est égal à la moitié de la capacité du générateur, et provient directement de la formule ci-dessus. 
 
-Exemple : Si G1 à une capacité maximale de produtcion = 500 :
+Exemple : Si G1 a une capacité maximale de production = 500 :
 
 Si il produit 50 à t-1 et que le SCADA lui réclame 150 à t :
 
@@ -95,14 +95,14 @@ Seuil = 500/2 = 250
 
 400 > 250 : Alarme
 
-Comme le SCADA connait le seuil et la production à t-1 de chaque générateur, il ne demandera jamais à un générateur une nouvelle production dépassant son seuil. Par contre, si la consommation des clients chute drastiquement, il ne peut rien faire et il y aura une augementation de la fréquence.
+Comme le SCADA connait le seuil et la production à t-1 de chaque générateur, il ne demandera jamais à un générateur une nouvelle production dépassant son seuil. Par contre, si la consommation des clients chute drastiquement, il ne peut rien faire et il y aura une augmentation de la fréquence.
 
 Le SCADA "vide" d'abord les générateurs par moitié pour répartir la charge entre les générateurs. Si cette répartition va générer des alertes, il recommence en "vidant" les générateurs par tiers pour répartir la charge de façon encore plus équivalente. Il recommence par quart, cinquième etc. jusqu'à dixième où il s'arrête dans tous les cas. Cela est nécessaire pour un retour à la normale le plus rapide possible.
 
 #### Améliorations possibles
 
 * Rendre utilisable le SCADA rescue (de secours)
+* Implémenter de nouvelles vulnérabilités/attaques/remédiations
 * Implémenter les clients (consommateurs) producteurs d'énergie
 * Faire varier la capacité maximale de certains générateurs pour simuler des productions d'énergies renouvelables (conditions météos changeantes)
-* Mise en place de plusieurs SCADA
 * Déploiement dans le Cloud pour optimisation des performances
