@@ -2,7 +2,7 @@
 
 ## Description du projet
 
-Ce projet est un outil de simulation de Smart-Grid permettant de tester la robustesse de celle-ci contre certaines cyber-attaques.
+Ce projet est un outil de simulation de Smart-Grid permettant de tester la robustesse de celle-ci contre certaines cyberattaques.
 
 ![Smart-Grid en fonctionnement](https://s10.gifyu.com/images/Hnet-image97594f3d00dbdce8.gif)
 
@@ -13,7 +13,7 @@ En l'état, le projet permet de :
 + Générer N Clients
 	* Choisir leur consommation moyenne
 
-+ Tester des cyber-attaques sur le réseau:
++ Tester des cyberattaques sur le réseau:
 	* Mot de passe faible en ssh
 	* Certificats falsifiés
 	* Simulation d'intrusion physique (contournement pare-feu)
