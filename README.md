@@ -55,11 +55,11 @@ sh erase.sh
 
 Pour les attaques, se référer au fichier hack.txt ⚠️ Pour la première attaque (Hack Script 1), une version sans les certificats est nécessaire. Pour cela :
 + Arrêter la Smart Grid (docker-compose down)
-+ Commenter les parties faisant appel aux certificats dans les fichier pyton du SCADA, du générateur et du consommateur
++ Commenter les parties faisant appel aux certificats dans les fichiers python du SCADA, du générateur et du consommateur
 + Relancer la Smart Grid (docker-compose up --build)
 + Lancer l'attaque grâce au fichier hack.txt
 
-## Présenation des choix réalisés dans l'implémentation de la Smart Grid
+## Présentation des choix réalisés dans l'implémentation de la Smart Grid
 
 #### Le calcul de la fréquence est réalisé comme ceci :
 
@@ -103,6 +103,6 @@ Le SCADA "vide" d'abord les générateurs par moitié pour répartir la charge e
 
 * Rendre utilisable le SCADA rescue (de secours)
 * Implémenter les clients (consommateurs) producteurs d'énergie
-* Faire varier la capacité maximale de certains générateurs pour simuler des productions d'énergies renouvelables (conditions météos changeantes par exemple)
+* Faire varier la capacité maximale de certains générateurs pour simuler des productions d'énergies renouvelables (conditions météos changeantes)
 * Mise en place de plusieurs SCADA
 * Déploiement dans le Cloud pour optimisation des performances
