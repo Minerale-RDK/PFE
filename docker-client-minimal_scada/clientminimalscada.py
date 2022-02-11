@@ -9,6 +9,7 @@ from flask import Flask, render_template, request
 
 clientminimalscada = Flask(__name__)
 
+#Flask pour l'interface web
 @clientminimalscada.route('/',methods=["GET"])
 def home():
     global listConso,listDispo,matriceFin
@@ -17,10 +18,10 @@ def home():
     
     matrice = matriceFin.copy()
     print(f'Matrice == {matrice}')
-    generateur = len(matrice[0])
-    conso = listConso.copy()
-    prod = listDispo.copy()
-    client= len(matrice)
+    generateur = len(matrice[0])#Nombre de générateurs
+    conso = listConso.copy()#Liste de consommation
+    prod = listDispo.copy()#Liste de capacités
+    client= len(matrice)#Nombre de clients
     sum_client = ecartDemCons.copy()#Liste alarmes des consomateurs
     sum_gene = alarmesGene.copy()#Liste alarmes des genes
 
@@ -34,6 +35,7 @@ def home():
 
 
 
+# Initialisation des variables globales du SCADA
 consommationTotale = 0
 
 listCoeff = []
@@ -46,6 +48,9 @@ ecartDemCons = []
 alarmesGene = []
 ecartScadaGene = []
 
+#Cette fonction trie les générateurs par ordre décroissant de coefficient de vitesse. Les générateurs pouvant
+#s'allumer et s'éteindre le plus vite sont placés en premiers. Cela est du au fait que s'il y a une chute de
+#consommation, ce sont ceux qui absorberont le plus vite cet écart
 def orderGene(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
     listeTrie = []
     listDispoReel = [0 for i in range(len(listDispo))]
@@ -58,31 +63,40 @@ def orderGene(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp):
     listConsoCopy = listConso.copy()
     indexListCroissant = sorted(range(len(listeCoeff)), key=lambda k: listeCoeff[k],reverse=True)
 
-    
+    #Cette partie de la fonction sert à calculer la disponibilité réelle : on calcule ici 
+    #la somme des consos de chaque génération à t-1
     for i in range(len(matricePrec[0])):
         for j in range(len(matricePrec)):
             listConsoPrec[i] += matricePrec[j][i] 
-            
+    
+    #A la place de leur capacité réelle, on donne comme dispo réelle à la smart function le
+    #maximum que chaque générateur peut produire sans avoir de chute de fréquence.
     for i in range(len(listConsoPrec)):
         if listConsoPrec[i] + listeCoeff[i] >= listDispo[i]:
             listDispoReel[i] = listDispo[i]
         else:
             listDispoReel[i] = listConsoPrec[i] + listeCoeff[i]
-    print(f'list dispo réel = {listDispoReel}, liste dispo = {listDispo}, listeConsoPrec = {listConsoPrec}')
 
     for i in indexListCroissant:
         listeTrie.append(listDispoReel[i])
     for i in range(len(listConso)):
         for j in range(len(listDispo)):
             matricePrecTrie[i][j] = matricePrec[i][indexListCroissant[j]]
-    matricePasTrie = smartFunction(listConso, listeTrie, listeCoeff, matricePrecTrie, 2, listDispoCopy)
+
+    #On appelle ici la smartFunction qui fais la distribution de l'électricité "intelligement"
+    matricePasTrie = smartFunction(listConso, listeTrie, listeCoeff, matricePrecTrie, 2, listDispoCopy) 
     
+    #On retrie la matrice dans le bon ordre pour l'affichage
     for i in range(len(listConso)):
         for j in range(len(listDispo)):
             matriceTrie[i][indexListCroissant[j]] = matricePasTrie[i][j]
     return matriceTrie
             
-    
+
+#Cette fonction s'occupe de la distribution 'intelligente' de l'électricité entre les générateurs.
+#La vitesse de remplissage (vitesseRemp) permet de vider chaque générateur petit à petit au lieu de
+#vider complétement le premier, puis le deuxième ... pour plus de réalisme et répartir la charge. Cette
+#valeur est fixée à deux au départ pour les vider par moitié.
 def smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp, listCapa):
     matrice = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
     listConsoInit = listConso.copy()
@@ -94,8 +108,8 @@ def smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp, li
     listeEcartNow = []
     listeSumEcart= []
     listePb = [0 for i in range(len(listDispo))]
-    print(f'at the lDispo = {listeDispoCopy}, lCon = {listeConsoCopy} vit remp = {vitesseRemp}')
     
+    #On fait la répartition entre les générateurs jusqu'à ce que l'une des deux listes soit vide
     for i in range(vitesseRemp):
         for y in range(len(listeConsoCopy)):
             while round(listeConsoCopy[y]/vitesseRemp) != 0:
@@ -111,21 +125,8 @@ def smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp, li
                         listeDispoCopy[h] = 0
                 if sum(listeDispoCopy) == 0:
                     break
-    for y in range(len(listeConsoCopy)):
-            while round(listeConsoCopy[y]) != 0:
-                for h in range(len(listeDispoCopy)):
-                    if round(listeConsoCopy[y]/2) < listeDispoCopy[h]:
-                        matrice[y][h] += int(round(listeConsoCopy[y]))
-                        listeDispoCopy[h] -= int(round(listeConsoCopy[y]))
-                        listeConsoCopy[y] -= int(round(listeConsoCopy[y]))
-                        continue
-                    else:
-                        matrice[y][h] += listeDispoCopy[h]
-                        listeConsoCopy[y] -= listeDispoCopy[h]
-                        listeDispoCopy[h] = 0
-                if sum(listeDispoCopy) == 0:
-                    break
-        
+
+    #Ici, on calcule les écarts entre la production précédente et celle demandée  
     for h in range(len(listeDispoCopy)):
         a=0
         for g in range(len(matrice)):
@@ -144,9 +145,12 @@ def smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp, li
     for h in range(len(listeDispoCopy)):
         if listeSumEcart[h] >= listeCapa[h]/2:
             listePb[h] = 1
+    #Si cela ne va pas générer d'alarme, on s'arrête là
     if sum(listePb) == 0:
         return matrice
     
+    #Sinon, on recommence en augmentant vitesseRemp pour mieux répartir entre les générateurs en les remplissants par
+    #tiers, quarts etc. jusqu'à dix où on s'arrête dans tous les cas 
     else:
         if vitesseRemp != 10:
             return smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp+1, listCapa)
@@ -154,21 +158,21 @@ def smartFunction(listConso, listDispo, listeCoeff, matricePrec, vitesseRemp, li
             return matrice
 
 
+#C'est la fonction appelée pour générer la distribution
 async def getDispatch(listConso, listDispo, listeCoeff):
     global matriceFin, ecartDemCons, matriceFinMoins1
     matriceFin = [[0 for i in range(len(listDispo))]for j in range(len(listConso))]
-
-    
+   
     while True:
         listConsoCopy = listConso.copy()
         matriceFinMoins1 = matriceFin.copy()
         matriceFin = orderGene(listConso, listDispo, listeCoeff,matriceFin,1 )
+        #On vérifie si il n'y a pas d'écart entre ce qui est demandée par les clients et fourni par les générateurs
+        #Si un client ne recoit pas au moins 90% de sa demande, une alarme est générée au niveau du client
         ecartDemCons = [False for i in range(len(listConso))]
         for i in range(len(listConso)):
             if ((sum(matriceFin[i])+1)/(listConsoCopy[i]+1)) < 0.9:
                 ecartDemCons[i] = True   
-        print(f'ecartDemCons = {ecartDemCons}')
-        print(f'matrice Fin = {matriceFin}')
         await asyncio.sleep(1)
 
 
@@ -177,13 +181,14 @@ cert_idx = 1
 cert = f"/certificates-all/certificate-scada-1.der"
 private_key = f"private-key-scada-1.pem"
 
+#Cette fontion est appelée pour chaque générateur pour leur fournir la production demandée par le SCADA
 async def sendConsommationToGenerator(url):
     global consommationTotale
     global listCoeff, listCapa, ecartScadaGene
 
     index = int(url.split('opc.tcp://server-gene')[1][:1]) - 1
     client = Client(url=url)
-    
+    #Certificats
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
@@ -218,15 +223,18 @@ async def sendConsommationToGenerator(url):
             for i in range(len(listConso)):
                 consoTotale += matriceFin[i][int(index)]
                 consoTotaleMoins1 += matriceFinMoins1[i][int(index)]
-            print(f'consototale moins 1 = {consoTotaleMoins1} et prod Act = { await prodAct.read_value()}')
             prodActNow = await prodAct.read_value()
+            #On vérifie ici si ce qui est demandé par le SCADA et effectivement produit par le générateur
+            #correspond pour identifier si le générateur est HACKED. On attend 15 itération car l'initialisation
+            #peut provoquer des disfonctionnements
             if initStart > 15:
                 if prodActNow/consoTotaleMoins1 < 0.3 and prodActNow/consoTotale < 0.3 :
                     ecartScadaGene[int(index)] += 1
                 else:
                     ecartScadaGene[int(index)] = 0
+            #Si il y a un écart significatif entre la demande du SCADA et la prod du générateur 4 fois d'affilée
+            #on passe le générateur en HACKED et passe sa dispo à 0 pour l'isoler du réseau
             if ecartScadaGene[int(index)] > 4:
-                print(f'ALERTE GENERALLEEEEEEEEEE et index = {index}')
                 listDispo[int(index)] = 0
                 alarmesGene[int(index)] = 2
                 break                
@@ -235,13 +243,13 @@ async def sendConsommationToGenerator(url):
             print(f"Sending {consoTotale} W of consommation to {url}")
             await conso.write_value(int(consoTotale))
         
-
+#Fonction pour récuppérer la consommation par consommateur
 async def retrieveConsommationFromConsummer(url):
     global listConso
     client = Client(url=url)
 
     index = int(url.split('opc.tcp://server-conso')[1][:1]) - 1
-    
+    #Certificats
     await client.set_security(
         SecurityPolicyBasic256Sha256,
         certificate=cert,
@@ -256,14 +264,12 @@ async def retrieveConsommationFromConsummer(url):
         while True:
             await asyncio.sleep(2)
             listConso[index] = await consommationConsommateurObject.read_value()
-            print(f'consommation = {listConso[index]} à l\'index {index}')
     
 
 async def main():
+    #Initialisations
     NbConso = int(sys.argv[1])
     NbGene = int(sys.argv[2])
-    # print("NbConso : ",NbConso)
-    # print("NbGene : ",NbGene)
     taskList = []
     global listDispo, listConso, listCoeff, matriceFin, matriceFinMoins1, ecartDemCons, alarmesGene,ecartScadaGene
     listDispo = [0 for i in range(NbGene)]

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+#Générateur de Docker-Compose via Tkinter
 from tkinter import *
 from tkinter import ttk
 import sys,os

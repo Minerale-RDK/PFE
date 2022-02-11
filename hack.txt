@@ -1,3 +1,5 @@
+#### Ensemble des commandes à réaliser pour simuler les attaques ####
+
 apk add openssl
 
 openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout private-key-hacker-1.pem -outform der -out certificates-all/certificate-hacker-1.der
@@ -11,8 +13,10 @@ docker run -it --network pfe_default malicious-hacker
 
 ==== HACK SCRIPT 1 ===
 
+### Cette première commande permet de se placer dans un conteneur "attaquant" ###
 docker run --rm -it --network pfe-no-certs_default malicious-hacker
 
+### On se connecte ensuite via ssh puis on écrit et exécute ce script ###
 
 cat << 'EOF' >> hack.py 
 import asyncio

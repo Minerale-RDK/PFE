@@ -1,1 +1,0 @@
-docker ps -q | % { docker kill $_ }; docker container prune; docker rmi client_rescue

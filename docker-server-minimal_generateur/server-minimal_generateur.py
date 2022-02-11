@@ -13,7 +13,7 @@ DOCKERINFO = os.popen("curl -s --unix-socket /run/docker.sock http://docker/cont
 Name = json.loads(DOCKERINFO)["Name"].split("_")[1]
 index = int(Name.split('server-gene')[1][:1])
 
-
+#Fonction qui calcule la production et la fréquence associée
 async def Production(consommation, capacity, coef_vitesse, production):
 
     productionAct = await production.read_value()
@@ -28,8 +28,6 @@ async def Production(consommation, capacity, coef_vitesse, production):
         if productionAct < consommation:
             productionAct = consommation
         await production.write_value(int(productionAct))
-
-    # f1 - f0 = (Production-Consommation) / Capacité Totale
     f1 = (productionAct - consommation)/capacity + 50
 
     return f1
@@ -37,6 +35,7 @@ async def Production(consommation, capacity, coef_vitesse, production):
 
 allCerts=os.listdir("certificates-all")
 
+#Vérification de la présence d'un nouveau certificat dans la banque
 def noNewCert():
     global allCerts
     if len(allCerts.copy()) == len(os.listdir("certificates-all")):
@@ -115,7 +114,6 @@ async def main():
                     await asyncio.sleep(0.5)
                     conso = await consommation.read_value()
                     if conso == 0:
-                        print("nouvelle frequence = ", await frequence.read_value(), "avec consommation", await consommation.read_value(), 'avec alarme = ', await alarmeFreq.read_value())
                         continue
                     else:
                         await production.write_value(conso)
@@ -124,6 +122,7 @@ async def main():
                 await asyncio.sleep(1)
                 
                 newFreq = await Production(await consommation.read_value(), capacity, 0.05, production)
+                #Mise en place des alarmes
                 if newFreq > 50.5:
                     await alarmeFreq.write_value(1)
                 if newFreq < 49.5:
@@ -131,11 +130,11 @@ async def main():
                 elif 49.5 <= newFreq <= 50.5:
                     await alarmeFreq.write_value(0)           
                 await frequence.write_value(newFreq)
-                print("nouvelle frequence = ", await frequence.read_value(), "avec consommation", await consommation.read_value(), 'avec alarme = ', await alarmeFreq.read_value())
                 
                 # Conso Capteur
-                await realConsommation.write_value(await consommation.read_value())  
+                await realConsommation.write_value(await consommation.read_value()) 
 
+            #Si nouveau certificat dans la banque, on l'ajoute comme admin (mauvaise pratique)
             else:
                 diff = list(set(allCerts).symmetric_difference(set(os.listdir('certificates-all'))))[0]
                 name = diff.split("-")[1] + diff.split("-")[2][:-4]

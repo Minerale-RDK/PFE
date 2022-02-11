@@ -1,5 +1,5 @@
 <html>
-
+<!--Page HTML Générée pour le Flask-->
 <head>
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
     <title>FlaskBlog</title>
@@ -66,15 +66,12 @@
     function timedRefresh(timeoutPeriod) {
         setTimeout("location.reload(true);", timeoutPeriod);
     }
+    //Suppressions des lignes
     function DeleteElias(id) {
         if (document.getElementById('Elia' + id)) {
             var test = document.getElementById('Elia' + id);
             test.remove()
-        }}
-
-
-
-        
+        }} 
         var clients = '{{client}}';  
         var generateurs = '{{generateur}}';
         var matrice = eval('{{mat}}');
@@ -85,21 +82,22 @@
         }
           
     
-
+    //Suppressions des clients
     function deleteClient(i) {
             if (document.getElementById('C' + i)) {
                 var test = document.getElementById('C' + i);
                 test.remove()
             }
     }
-
+    //Suppressions des générateurs
     function deleteGene(i) {
             if (document.getElementById('d' + i)) {
                 var test = document.getElementById('d' + i);
                 test.remove()
             }
     }
-
+    
+    //Dessin des lignes
     function connect(div1, div2, color, thickness, opac, valeur, id) {
         
         var off1 = getOffset(div1);
@@ -139,7 +137,7 @@
             };
         }
     }
-
+    //Dessin des clients
     function createClient(sum_clients,conso, i){
         var node = document.getElementById("clients")
         if (sum_clients == true)
@@ -148,7 +146,7 @@
             var htmlClient = "<div id='C"+i+"' class='client' '> <p>Client"+i+" <br> "+conso+" W</p> </div>"
         node.innerHTML += htmlClient;
     }
-
+    //Dessin des générateurs
     function createGenerateur(listeal, g){
         var node = document.getElementById("gene")
         console.log("liste alarme",listeal[g-1])
@@ -176,6 +174,7 @@
     var listeal = eval('{{listeal}}')
     var prod = eval('{{prod}}')
     
+    //Function de rafraichissement avec Ajax
     function autoReload() {
         setTimeout(function () {
             $.ajax({

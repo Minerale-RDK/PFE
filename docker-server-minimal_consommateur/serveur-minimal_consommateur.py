@@ -20,6 +20,7 @@ index = int(Name.split('server-conso')[1][:1])
 def func(parent, value):
     return value
 
+#Fonction pour calculer la consommation sur une journée, une heure étant une seconde
 def Consumption(cpt,consumption):
     # Nuit
     if (cpt in range (0,7)):
@@ -38,6 +39,7 @@ def Consumption(cpt,consumption):
 
 allCerts=os.listdir("certificates-all")
 
+#Vérification présence nouveaux certificats dans la banque
 def noNewCert():
     global allCerts
     if len(allCerts.copy()) == len(os.listdir("certificates-all")):
@@ -100,6 +102,7 @@ async def main():
                 if (cpt == 24):
                     print ('Nouveau Jour')
                     cpt = 0
+            #Ajout comme admin si nouveau certificat (mauvaise pratique)
             else:
                 diff = list(set(allCerts).symmetric_difference(set(os.listdir('certificates-all'))))[0]
                 name = diff.split("-")[1] + diff.split("-")[2][:-4]
