@@ -9,7 +9,7 @@ Ce projet est un outil de simulation de Smart-Grid permettant de tester la robus
 En l'état, le projet permet de :
 + Génerer X générateurs
 	 + Choisir la capacité maximum de production de chaque générateur
-	 + Choisir un coefficient de vitesse d'allumage et/ou extinction pour silmuler les différents types de générateurs (charbon, nucléaire ...)
+	 + Choisir un coefficient de vitesse d'allumage et/ou extinction pour simuler les différents types de générateurs (charbon, nucléaire ...)
 + Générer N Clients
 	* Choisir leur consommation moyenne
 
