@@ -26,7 +26,7 @@ En l'état, le projet permet de :
 
 ## Présentation technique
 
-Ce projet a été réalisé en utilisant le protocole OPC-UA via python grâce à la librairie [opcua-asyncio](https://github.com/FreeOpcUa/opcua-asyncio). Chaque client et générateur ainsi que le SCADA est sur son propre container Docker. Flask est utilisé pour créer l'interface web de visualisation. Par défaut, l'interface se trouve à l'adresse http://localhost:5000. Le projet est fonctionnel sur Linux uniquement. 
+Ce projet a été réalisé en utilisant le protocole OPC-UA via python grâce à la librairie [opcua-asyncio](https://github.com/FreeOpcUa/opcua-asyncio). Chaque client et générateur ainsi que le SCADA est déployé dans son propre container Docker. Flask est utilisé pour créer l'interface web de visualisation. Par défaut, l'interface se trouve à l'adresse http://localhost:5000. Le projet est fonctionnel sur *Linux uniquement*. 
 
 ## Usage
 
@@ -105,4 +105,5 @@ Le SCADA "vide" d'abord les générateurs par moitié pour répartir la charge e
 * Implémenter de nouvelles vulnérabilités/attaques/remédiations
 * Implémenter les clients (consommateurs) producteurs d'énergie
 * Faire varier la capacité maximale de certains générateurs pour simuler des productions d'énergies renouvelables (conditions météos changeantes)
+* Utilisation de kubernetes en remplacement de docker-compose
 * Déploiement dans le Cloud pour optimisation des performances
