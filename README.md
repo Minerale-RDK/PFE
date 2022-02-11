@@ -53,7 +53,7 @@ Pour arrêter et supprimer la Smart-Grid :
 sh erase.sh
 ```
 
-Pour les attaques, se référer au fichier hack.txt :!: Pour la première attaque (Hack Script 1), une version sans les certificats est nécessaire. Pour cela :
+Pour les attaques, se référer au fichier hack.txt ⚠️ Pour la première attaque (Hack Script 1), une version sans les certificats est nécessaire. Pour cela :
 + Arrêter la Smart Grid (docker-compose down)
 + Commenter les parties faisant appel aux certificats dans les fichier pyton du SCADA, du générateur et du consommateur
 + Relancer la Smart Grid (docker-compose up --build)
@@ -61,7 +61,7 @@ Pour les attaques, se référer au fichier hack.txt :!: Pour la première attaqu
 
 ## Présenation des choix réalisés dans l'implémentation de la Smart Grid
 
-#### Le calcul de la fréquence est calculé comme ceci :
+#### Le calcul de la fréquence est réalisé comme ceci :
 
 f1 = (production - consommation)/capacité + f0 
 
